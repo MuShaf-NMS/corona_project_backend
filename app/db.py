@@ -19,7 +19,7 @@ class Database:
             con.close()
             return hasil
         except Exception as e:
-            self.app.logger.error(e,exc_info=True)
+            self.app.logger.info(e)
             return {"msg":"terjadi kesalahan"},500
     def get_one(self,sql,params=[]):
         """
@@ -42,6 +42,7 @@ class Database:
             cur = con.cursor(pymysql.cursors.DictCursor)
             cur.execute(sql,params)
             con.commit()
+        except Exception as e:
+            self.app.logger.info(e)
         finally:
             con.close()
-            return {"msg":"Sukses"}

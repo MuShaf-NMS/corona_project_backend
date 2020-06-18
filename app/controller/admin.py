@@ -9,7 +9,7 @@ import uuid
 def stringTime(dt):
     return datetime.strptime(dt,"%Y-%m-%d")
 
-def postBio(uuid,nama,username,alamat,tempat_lahir,tanggal_lahir,hp,email,now,uuid_user):
+def postBioUser(uuid,nama,username,alamat,tempat_lahir,tanggal_lahir,hp,email,now,uuid_user):
     sql = """insert into bio_user values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
     params = [uuid,nama,username,alamat,tempat_lahir,tanggal_lahir,hp,email,now,now,uuid_user]
     return db.commit_data(sql,params)
@@ -41,7 +41,7 @@ class TambahAdmin(Resource):
         password = sha256.hash(data["password"])
         now = datetime.now()
         tanggal_lahir = stringTime(data["tanggal_lahir"])
-        postBio(uuid_bio,data["nama"],data["username"],data["alamat"],data["tempat_lahir"],tanggal_lahir,data["hp"],data["email"],now,uuid_user)
+        postBioUser(uuid_bio,data["nama"],data["username"],data["alamat"],data["tempat_lahir"],tanggal_lahir,data["hp"],data["email"],now,uuid_user)
         postUser(uuid_user,data["username"],password,data["superadmin"],now)
 class Siswa(Resource):
     @jwt_required
