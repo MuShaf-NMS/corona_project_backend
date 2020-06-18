@@ -35,7 +35,6 @@ class Database:
             return hasil
         except Exception as e:
             self.app.logger.info(e)
-            return {"msg":"terjadi kesalahan"},500
     def commit_data(self,sql,params=[]):
         try:
             con = self.koneksi()
