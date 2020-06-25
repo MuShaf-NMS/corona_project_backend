@@ -16,11 +16,11 @@ class Database:
             cur = con.cursor(pymysql.cursors.DictCursor)
             cur.execute(sql,params)
             hasil = cur.fetchall()
-            con.close()
             return hasil
         except Exception as e:
             self.app.logger.info(e)
-            return {"msg":"terjadi kesalahan"},500
+        finally:
+            con.close()
     def get_one(self,sql,params=[]):
         """
         Mengeluarkan sebuah record dari database berdasarkan query(sql)
@@ -31,10 +31,11 @@ class Database:
             cur = con.cursor(pymysql.cursors.DictCursor)
             cur.execute(sql,params)
             hasil = cur.fetchone()
-            con.close()
             return hasil
         except Exception as e:
             self.app.logger.info(e)
+        finally:
+            con.close()
     def commit_data(self,sql,params=[]):
         try:
             con = self.koneksi()
