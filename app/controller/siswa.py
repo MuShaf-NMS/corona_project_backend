@@ -9,9 +9,9 @@ from datetime import datetime
 def stringTime(dt):
     return datetime.strptime(dt,"%Y-%m-%d")
 
-def postBioSiswa(uuid,nama,username,alamat,tempat_lahir,tanggal_lahir,hp,email,now,uuid_siswa):
-    sql = """insert into bio_siswa values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-    params = [uuid,nama,username,alamat,tempat_lahir,tanggal_lahir,hp,email,now,now,uuid_siswa]
+def postBioSiswa(uuid,nama,username,jk,alamat,tempat_lahir,tanggal_lahir,hp,email,now,uuid_siswa):
+    sql = """insert into bio_siswa values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+    params = [uuid,nama,username,jk,alamat,tempat_lahir,tanggal_lahir,hp,email,now,now,uuid_siswa]
     return db.commit_data(sql,params)
 
 def postSiswa(uuid_siswa,username,password,now):
@@ -35,5 +35,5 @@ class TambahSiswa(Resource):
         password = sha256.hash(data["password"])
         now = datetime.now()
         tanggal_lahir = stringTime(data["tanggal_lahir"])
-        postBioSiswa(uuid_bio,data["nama"],data["username"],data["alamat"],data["tempat_lahir"],tanggal_lahir,data["hp"],data["email"],now,uuid_siswa)
+        postBioSiswa(uuid_bio,data["nama"],data["username"],data["jk"],data["alamat"],data["tempat_lahir"],tanggal_lahir,data["hp"],data["email"],now,uuid_siswa)
         postSiswa(uuid_siswa,data["username"],password,now)
