@@ -29,7 +29,7 @@ def checkingUser(user):
 
 def saveBlacklistToken(jti):
     sql = """insert into black_list_token values(0,%s)"""
-    return db.commit_data(sql,[jti])
+    db.commit_data(sql,[jti])
 
 class Login(Resource):
     def post(self):
@@ -69,6 +69,8 @@ class LogoutAccessToken(Resource):
     def get(self):
         jti = get_raw_jwt()["jti"]
         saveBlacklistToken(jti)
+        print(jti)
+        print('-')
         return {
             "msg": "token has been revoked"
         }

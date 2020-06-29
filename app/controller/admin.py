@@ -35,6 +35,7 @@ class Admin(Resource):
         return db.get_data(sql)
 
 class TambahAdmin(Resource):
+    @jwt_required
     def post(self):
         now = datetime.now()
         data = request.get_json()
