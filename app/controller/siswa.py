@@ -22,9 +22,8 @@ def postSiswa(uuid_siswa,username,password,now):
 class Pelajaran(Resource):
     @jwt_required
     def get(self):
-        return {
-            "pelajaran" : "Matematika"
-        }
+        sql = "select * from materi"
+        return db.get_data(sql)
 
 class TambahSiswa(Resource):
     def post(self):
