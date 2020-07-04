@@ -19,11 +19,21 @@ def postSiswa(uuid_siswa,username,password,now):
     params = [uuid_siswa,username,password,now,now]
     return db.commit_data(sql,params)
 
-class Pelajaran(Resource):
+class DaftarMateri(Resource):
     @jwt_required
     def get(self):
-        sql = "select * from materi"
+        sql = """select * from materi"""
         return db.get_data(sql)
+
+class DetailMateri(Resource):
+    def get(self,id):
+        sql = """select * from materi where uuid = %s"""
+        return db.get_one(sql,[id])
+
+class PrfileSiswa(Resource):
+    def get(self,id):
+        sql = """select * from bio_siswa where uuid_siswa = %s"""
+        return db.get_one(sql,[id])
 
 class TambahSiswa(Resource):
     def post(self):

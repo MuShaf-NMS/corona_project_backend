@@ -46,6 +46,7 @@ class Login(Resource):
                         "accessToken" : accessToken,
                         "refreshToken" : refreshToken,
                         "username" : data["username"],
+                        "uuid": user["uuid"],
                         "status" : "siswa"
                     }
                     if "superadmin" in user:
@@ -69,8 +70,6 @@ class LogoutAccessToken(Resource):
     def get(self):
         jti = get_raw_jwt()["jti"]
         saveBlacklistToken(jti)
-        print(jti)
-        print('-')
         return {
             "msg": "token has been revoked"
         }

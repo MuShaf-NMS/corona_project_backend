@@ -34,6 +34,12 @@ class Admin(Resource):
         sql = "select * from user"
         return db.get_data(sql)
 
+class ProfileAdmin(Resource):
+    @jwt_required
+    def get(self,id):
+        sql = "select * from bio_user where uuid_user = %s"
+        return db.get_one(sql,[id])
+
 class TambahAdmin(Resource):
     @jwt_required
     def post(self):
