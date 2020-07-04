@@ -1,7 +1,7 @@
 from app import api
 from app.controller.user import Login, LogoutAccessToken, LogoutRefreshToken
-from app.controller.siswa import TambahSiswa, DaftarMateri, DetailMateri, PrfileSiswa
-from app.controller.admin import TambahAdmin, TambahMateri, Admin, Siswa, ProfileAdmin
+from app.controller.siswa import TambahSiswa, DaftarMateri, DetailMateri, PrfileSiswa, Siswa
+from app.controller.admin import TambahAdmin, TambahMateri, Admin, ProfileAdmin
 
 api.add_resource(Login,"/login")
 api.add_resource(LogoutAccessToken,"/logout-access-token")

@@ -52,9 +52,3 @@ class TambahAdmin(Resource):
         tanggal_lahir = stringTime(data["tanggal_lahir"])
         postBioUser(uuid_bio,data["nama"],data["username"],data["jk"],data["alamat"],data["tempat_lahir"],tanggal_lahir,data["hp"],data["email"],now,uuid_user)
         postUser(uuid_user,data["username"],password,data["superadmin"],now)
-        
-class Siswa(Resource):
-    @jwt_required
-    def get(self):
-        sql = "select * from siswa"
-        return db.get_data(sql)

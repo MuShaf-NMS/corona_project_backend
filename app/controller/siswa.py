@@ -26,16 +26,19 @@ class DaftarMateri(Resource):
         return db.get_data(sql)
 
 class DetailMateri(Resource):
+    @jwt_required
     def get(self,id):
         sql = """select * from materi where uuid = %s"""
         return db.get_one(sql,[id])
 
 class PrfileSiswa(Resource):
+    @jwt_required
     def get(self,id):
         sql = """select * from bio_siswa where uuid_siswa = %s"""
         return db.get_one(sql,[id])
 
 class TambahSiswa(Resource):
+    @jwt_required
     def post(self):
         now = datetime.now()
         data = request.get_json()
@@ -46,3 +49,8 @@ class TambahSiswa(Resource):
         tanggal_lahir = stringTime(data["tanggal_lahir"])
         postBioSiswa(uuid_bio,data["nama"],data["username"],data["jk"],data["alamat"],data["tempat_lahir"],tanggal_lahir,data["hp"],data["email"],now,uuid_siswa)
         postSiswa(uuid_siswa,data["username"],password,now)
+
+class Siswa(Resource):
+    def get(self):
+        sql = """select * from siswa"""
+        return db.get_data(sql)
