@@ -18,11 +18,3 @@ class CustomEncoder(json.JSONEncoder):
         elif isinstance(obj, decimal.Decimal):
             return str(obj)
         return json.JSONEncoder.default(self, obj)
-
-
-
-def custom_json_output(data, code, headers=None):
-    dumped = json.dumps(data, cls=CustomEncoder)
-    resp = make_response(dumped, code)
-    resp.headers.extend(headers or {})
-    return resp
