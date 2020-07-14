@@ -64,6 +64,9 @@ class Login(Resource):
                             res["superadmin"] = True
                         else:
                             res["superadmin"] = False
+                    elif "kelas" in user:
+                        res["kelas"] = user["kelas"]
+                    print(res)
                     return res
             return {
                 "msg": "oops user or password wrong"

@@ -1,4 +1,3 @@
-from app.router import router
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
@@ -22,3 +21,5 @@ def check_token(decrypted_token):
     sql = """select * from black_list_token where jti = %s"""
     res = db.get_one(sql, [jti])
     return bool(res)
+
+from app.router import router
