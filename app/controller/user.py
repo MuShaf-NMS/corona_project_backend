@@ -46,11 +46,11 @@ class Login(Resource):
             if user != None:
                 if verifyHash(data["password"], user["password"]):
                     accessToken = create_access_token(
-                        identity=data["username"], expires_delta=timedelta(hours=6))
+                        identity=user["uuid"], expires_delta=timedelta(hours=6))
                     refreshToken = ''
                     if data["rememberMe"]:
                         refreshToken = create_refresh_token(
-                            identity=data["username"])
+                            identity=user["uuid"])
                     res = {
                         "accessToken": accessToken,
                         "refreshToken": refreshToken,
@@ -66,7 +66,6 @@ class Login(Resource):
                             res["superadmin"] = False
                     elif "kelas" in user:
                         res["kelas"] = user["kelas"]
-                    print(res)
                     return res
             return {
                 "msg": "oops user or password wrong"

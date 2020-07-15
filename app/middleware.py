@@ -10,7 +10,7 @@ def siswa():
         def __siswa(*args, **kwargs):
             result = f(*args, **kwargs)
             data = get_jwt_identity()
-            sql = """select * from siswa where username = %s"""
+            sql = """select * from siswa where uuid = %s"""
             hasil = db.get_one(sql, [data])
             if hasil == None:
                 return Response('Not allowed', mimetype="text/plain", status=405)
@@ -25,7 +25,7 @@ def admin():
         def __admin(*args, **kwargs):
             result = f(*args, **kwargs)
             data = get_jwt_identity()
-            sql = """select * from user where username = %s"""
+            sql = """select * from user where uuid = %s"""
             hasil = db.get_one(sql, [data])
             if hasil == None:
                 return Response('Not allowed', mimetype="text/plain", status=405)
@@ -40,7 +40,7 @@ def superAdmin():
         def __superAdmin(*args, **kwargs):
             result = f(*args, **kwargs)
             data = get_jwt_identity()
-            sql = """select * from user where username = %s and superadmin = 1"""
+            sql = """select * from user where uuid = %s and superadmin = 1"""
             hasil = db.get_one(sql, [data])
             if hasil == None:
                 return Response('Not allowed', mimetype="text/plain", status=405)

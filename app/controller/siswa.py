@@ -38,6 +38,9 @@ def checkSiswa(user):
     res = db.get_one(sql, params)
     return res
 
+def verifyPassword(id,password):
+    sql = """select password from siswa where uuid = %s"""
+    return sha256.verify(password,db.get_one(sql,[id])["password"])
 
 def checkingUser(user):
     if checkAdmin(user) == None and checkSiswa(user) == None:
@@ -66,8 +69,36 @@ class ProfileSiswa(Resource):
     @siswa()
     def get(self, id):
         sql = """select * from bio_siswa where uuid_siswa = %s"""
+        print(db.get_one(sql, [id]))
         return db.get_one(sql, [id])
 
+class UpdateUsernameSiswa(Resource):
+    @jwt_required
+    @siswa()
+    def get(self,id):
+        sql = """select username from siswa where uuid = %s"""
+        return db.get_one(sql,[id])
+    def put(self,id):
+        data = request.get_json()
+        if checkingUser(data["username"]):
+            if verifyPassword(id,data["password"]):
+                sql1 = """update siswa set username = %s where uuid = %s"""
+                db.commit_data(sql1,[data["username"],id])
+                sql2 = """update bio_siswa set username = %s where uuid_siswa = %s"""
+                db.commit_data(sql2,[data["username"],id])
+                return {"msg": "Sukses"}
+        else:
+            return {"msg": "Maaf"}
+
+
+class UpdatePasswordSiswa(Resource):
+    @jwt_required
+    @siswa()
+    def put(self,id):
+        data = request.get_json()
+        if verifyPassword(id,data["password_lama"]):
+            sql = """update siswa set password = %s where uuid = %s"""
+            db.commit_data(sql,[sha256.hash(data["password_baru"]),id])
 
 class TambahSiswa(Resource):
     @jwt_required
@@ -86,10 +117,22 @@ class TambahSiswa(Resource):
         else:
             return {"msg": "maaf, username ini sudah ada"}
 
+class UpdateSiswa(Resource):
+    @jwt_required
+    @superAdmin()
+    def get(self,id):
+        sql = """select nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email from bio_siswa where uuid = %s"""
+        return db.get_one(sql,[id])
+    def put(self,id):
+        now = datetime.now()
+        data = request.get_json()
+        sql = """update bio_siswa set nama = %s, jk = %s, alamat = %s, tanggal_lahir = %s, tempat_lahir = %s, hp = %s, email = %s, updated_at = %s where uuid = %s"""
+        params = [data["nama"],data["jk"],data["alamat"],data["tanggal_lahir"],data["tempat_lahir"],data["hp"],data["email"],now,id]
+        db.commit_data(sql,params)
 
 class Siswa(Resource):
     @jwt_required
     @superAdmin()
     def get(self):
-        sql = """select * from siswa"""
+        sql = """select * from bio_siswa"""
         return db.get_data(sql)

@@ -102,11 +102,11 @@ class Jawab(Resource):
     # @jwt_required
     # @siswa()
     def get(self, kelas, mapel, materi):
-        sql = """select soal.uuid,kunci.pilihan from soal,(select soal,group_concat(opsi) as pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.kelas = %s and soal.mapel = %s and soal.materi = %s group by soal) kunci where soal.soal = kunci.soal"""
+        sql = """select soal.uuid from soal where kelas = %s and mapel = %s and materi = %s"""
         hasil = db.get_data(sql, [kelas, mapel, materi])
-        for i in hasil:
-            i["pilihan"] = i["pilihan"].split(",")
-            shuffle(i["pilihan"])
+        #for i in hasil:
+        #    i["pilihan"] = i["pilihan"].split(",")
+        #    shuffle(i["pilihan"])
         shuffle(hasil)
         return hasil
 
@@ -123,3 +123,13 @@ class Jawab(Resource):
         params = [str(uuid.uuid4()), data["uuid_siswa"],
                   mapel, materi, skor, now]
         db.commit_data(sql, params)
+
+class SoalJawab(Resource):
+    def get(self,id):
+        sql = """select soal,group_concat(opsi) as pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.uuid = %s group by soal"""
+        hasil = db.get_one(sql,[id])
+        hasil["pilihan"] = hasil["pilihan"].split(",")
+        for i in range(len(hasil["pilihan"])):
+            hasil["pilihan"][i] = {"text":hasil["pilihan"][i], "value":hasil["pilihan"][i]}
+        shuffle(hasil["pilihan"])
+        return hasil
