@@ -48,12 +48,8 @@ class Login(Resource):
                     accessToken = create_access_token(
                         identity=user["uuid"], expires_delta=timedelta(hours=6))
                     refreshToken = ''
-                    if data["rememberMe"]:
-                        refreshToken = create_refresh_token(
-                            identity=user["uuid"])
                     res = {
                         "accessToken": accessToken,
-                        "refreshToken": refreshToken,
                         "username": data["username"],
                         "uuid": user["uuid"],
                         "status": "siswa"
@@ -65,6 +61,7 @@ class Login(Resource):
                         else:
                             res["superadmin"] = False
                             res["bidang_studi"] = user["bidang_studi"]
+                            res["kelas_ampu"] = user["kelas_ampu"]
                     elif "kelas" in user:
                         res["kelas"] = user["kelas"]
                     return res

@@ -51,24 +51,19 @@ def checkingUser(user):
         return False
 
 
-class TambahMateri(Resource):
-    @jwt_required
-    @admin()
-    def post(self):
-        now = datetime.now()
-        data = request.get_json()
-        sql = """insert into materi values(0,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        params = [str(uuid.uuid4()), data["mapel"], data["guru"],
-                  data["materi"], data["submateri"], data["isi"], now, now]
-        return db.commit_data(sql, params)
-
 
 class Admin(Resource):
     @jwt_required
     @superAdmin()
     def get(self):
-        sql = "select * from bio_user"
-        return db.get_data(sql)
+        sql = "select nama, superadmin, bio_user.uuid, uuid_user, bio_user.created_at, bio_user.updated_at from bio_user join user on bio_user.uuid_user = user.uuid"
+        hasil = db.get_data(sql)
+        for i in hasil:
+            if i["superadmin"] == 1:
+                i["superadmin"] = True
+            else:
+                i["superadmin"] = False
+        return hasil
 
 
 class ProfileAdmin(Resource):
@@ -97,6 +92,8 @@ class UpdateUsernameAdmin(Resource):
                 sql2 = """update bio_user set username = %s where uuid_user = %s"""
                 db.commit_data(sql2, [data["username"], id])
                 return {"msg": "Sukses"}
+            else:
+                return {"msg": "Salah"}
         else:
             return {"msg": "Maaf"}
 
@@ -109,6 +106,9 @@ class UpdatePasswordAdmin(Resource):
         if verifyPassword(id, data["password_lama"]):
             sql = """update user set password = %s where uuid = %s"""
             db.commit_data(sql, [sha256.hash(data["password_baru"]), id])
+            return {"msg": "Sukses"}
+        else:
+            return {"msg": "Maaf"}
 
 
 class TambahAdmin(Resource):
@@ -126,6 +126,7 @@ class TambahAdmin(Resource):
                         data["tempat_lahir"], tanggal_lahir, data["hp"], data["email"], now, uuid_user)
             postUser(uuid_user, data["username"],
                      password, data["superadmin"], now)
+            return {"msg": "Sukses"}
         else:
             return {"msg": "maaf, username ini sudah ada"}
 

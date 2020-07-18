@@ -51,19 +51,6 @@ def checkingUser(user):
         return False
 
 
-class DaftarMateri(Resource):
-    @jwt_required
-    def get(self):
-        sql = """select * from materi"""
-        result = db.get_data(sql)
-        return result
-
-
-class DetailMateri(Resource):
-    @jwt_required
-    def get(self, id):
-        sql = """select * from materi where uuid = %s"""
-        return db.get_one(sql, [id])
 
 
 class ProfileSiswa(Resource):
@@ -92,6 +79,8 @@ class UpdateUsernameSiswa(Resource):
                 sql2 = """update bio_siswa set username = %s where uuid_siswa = %s"""
                 db.commit_data(sql2, [data["username"], id])
                 return {"msg": "Sukses"}
+            else:
+                return {"msg": "Salah"}
         else:
             return {"msg": "Maaf"}
 
@@ -104,7 +93,9 @@ class UpdatePasswordSiswa(Resource):
         if verifyPassword(id, data["password_lama"]):
             sql = """update siswa set password = %s where uuid = %s"""
             db.commit_data(sql, [sha256.hash(data["password_baru"]), id])
-
+            return {"msg": "Sukses"}
+        else:
+            return {"msg": "Maaf"}
 
 class TambahSiswa(Resource):
     @jwt_required
@@ -120,6 +111,7 @@ class TambahSiswa(Resource):
             postBioSiswa(uuid_bio, data["nama"], data["username"], data["jk"], data["alamat"],
                          data["tempat_lahir"], tanggal_lahir, data["hp"], data["email"], now, uuid_siswa)
             postSiswa(uuid_siswa, data["username"], password, data["kelas"], now)
+            return {"msg": "Sukses"}
         else:
             return {"msg": "maaf, username ini sudah ada"}
 
@@ -149,5 +141,11 @@ class Siswa(Resource):
     @jwt_required
     @superAdmin()
     def get(self):
-        sql = """select * from bio_siswa"""
+        sql = """select kelas, count(*) as jumlah_siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid group by kelas"""
         return db.get_data(sql)
+
+    
+class SiswaKelas(Resource):
+    def get(self, kelas):
+        sql = """select bio_siswa.uuid, nama, jk, alamat, bio_siswa.created_at, bio_siswa.updated_at from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid where kelas = %s"""
+        return db.get_data(sql,[kelas])
