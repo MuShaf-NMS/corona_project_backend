@@ -64,6 +64,7 @@ class Login(Resource):
                             res["superadmin"] = True
                         else:
                             res["superadmin"] = False
+                            res["bidang_studi"] = user["bidang_studi"]
                     elif "kelas" in user:
                         res["kelas"] = user["kelas"]
                     return res

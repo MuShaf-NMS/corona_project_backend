@@ -12,11 +12,15 @@ import uuid
 def cekJawaban(kelas, mapel, materi, uuid_soal, jawaban):
     sql = """select kunci_jawaban from soal where kelas = %s and mapel = %s and materi = %s and uuid = %s"""
     hasil = db.get_one(sql, [kelas, mapel, materi, uuid_soal])
+
     if hasil["kunci_jawaban"] == jawaban:
         return True
     else:
         return False
 
+def cekSiswa(kelas,mapel,materi,uuid_siswa):
+    sql = """select * from skor where kelas = %s and mapel = %s and materi = %s and uuid_siswa = %s"""
+    return db.get_one(sql,[kelas,mapel,materi,uuid_siswa])
 
 def postSoal(uuid, kelas, mapel, materi, soal, kunci, now):
     sql = """insert into soal values(0,%s,%s,%s,%s,%s,%s,%s,%s)"""
@@ -48,12 +52,14 @@ class SoalAdmin(Resource):
         sql = """select distinct soal.kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi"""
         return db.get_data(sql)
 
+
 class SoalSiswa(Resource):
     @jwt_required
     @siswa()
-    def get(self,kelas):
+    def get(self, kelas):
         sql = """select distinct mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.kelas = %s"""
-        return db.get_data(sql,[kelas])
+        return db.get_data(sql, [kelas])
+
 
 class CekSoal(Resource):
     @jwt_required
@@ -74,6 +80,8 @@ class CekSoal(Resource):
             hasil[hasil.index(i)]["opsi"] = opsi
         return hasil
 
+    @jwt_required
+    @admin()
     def put(self, kelas, mapel, materi):
         now = datetime.now()
         data = request.get_json()
@@ -99,37 +107,48 @@ class TambahSoal(Resource):
 
 
 class Jawab(Resource):
-    # @jwt_required
-    # @siswa()
+    @jwt_required
+    @siswa()
     def get(self, kelas, mapel, materi):
         sql = """select soal.uuid from soal where kelas = %s and mapel = %s and materi = %s"""
         hasil = db.get_data(sql, [kelas, mapel, materi])
-        #for i in hasil:
+        # for i in hasil:
         #    i["pilihan"] = i["pilihan"].split(",")
         #    shuffle(i["pilihan"])
         shuffle(hasil)
         return hasil
 
+    @jwt_required
+    @siswa()
     def post(self, kelas, mapel, materi):
         now = datetime.now()
         data = request.get_json()
         # print(data)
         skor = 0
-        for i in data["hasil"]:
-            if cekJawaban(kelas, mapel, materi, i["uuid_soal"], i["jawaban"]):
-                skor += 1
-        print(skor)
-        sql = """insert into skor values(0,%s,%s,%s,%s,%s,%s)"""
-        params = [str(uuid.uuid4()), data["uuid_siswa"],
-                  mapel, materi, skor, now]
-        db.commit_data(sql, params)
+        if cekSiswa(kelas,mapel,materi,data["uuid_siswa"]) == None:
+            for i in data["hasil"]:
+                if cekJawaban(kelas, mapel, materi, i["uuid"], i["jawaban"]):
+                    skor += 1
+            sql = """insert into skor values(0,%s,%s,%s,%s,%s,%s,%s)"""
+            params = [str(uuid.uuid4()), data["uuid_siswa"],
+                    kelas, mapel, materi, skor, now]
+            db.commit_data(sql, params)
+        else:
+            return {"msg": "Anda sudah menjawab soal ini"}
 
 class SoalJawab(Resource):
-    def get(self,id):
+    @jwt_required
+    @siswa()
+    def get(self, id):
         sql = """select soal,group_concat(opsi) as pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.uuid = %s group by soal"""
-        hasil = db.get_one(sql,[id])
+        hasil = db.get_one(sql, [id])
         hasil["pilihan"] = hasil["pilihan"].split(",")
         for i in range(len(hasil["pilihan"])):
-            hasil["pilihan"][i] = {"text":hasil["pilihan"][i], "value":hasil["pilihan"][i]}
+            hasil["pilihan"][i] = {
+                "text": hasil["pilihan"][i], "value": hasil["pilihan"][i]}
         shuffle(hasil["pilihan"])
         return hasil
+
+class Skor(Resource):
+    def get(self):
+        pass
