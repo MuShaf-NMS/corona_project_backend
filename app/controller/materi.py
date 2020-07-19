@@ -45,3 +45,14 @@ class DaftarMateriAdmin(Resource):
         else:
             sql = """select * from materi where mapel = %s and kelas = %s"""
             return db.get_data(sql,[mapel,kelas])
+
+
+class UpdateMateri(Resource):
+    @jwt_required
+    @admin()
+    def put(self, id):
+        now = datetime.now()
+        data = request.get_json()
+        sql = """update materi set guru = %s, kelas = %s, mapel = %s, materi = %s, submateri = %s, isi = %s, link = %s, updated_at = %s"""
+        params = [data["guru"],data["kelas"],data["mapel"],data["materi"],data["submateri"],data["isi"],data["link"],now]
+        db.commit_data(sql,params)

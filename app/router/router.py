@@ -3,7 +3,7 @@ from app.controller.user import Login, LogoutAccessToken, LogoutRefreshToken
 from app.controller.siswa import TambahSiswa, ProfileSiswa, SiswaKelas, Siswa, UpdateUsernameSiswa, UpdatePasswordSiswa, UpdateSiswa
 from app.controller.admin import TambahAdmin, Admin, ProfileAdmin, UpdatePasswordAdmin, UpdateUsernameAdmin, UpdateAdmin
 from app.controller.soal import TambahSoal, Jawab, SoalAdmin, CekSoal, SoalSiswa, SoalJawab, DaftarSkor, Skor
-from app.controller.materi import TambahMateri, DetailMateri, DaftarMateriSiswa, DaftarMateriAdmin
+from app.controller.materi import TambahMateri, DetailMateri, DaftarMateriSiswa, DaftarMateriAdmin, UpdateMateri
 
 api.add_resource(Login, "/login")
 api.add_resource(LogoutAccessToken, "/logout-access-token")
@@ -19,6 +19,7 @@ api.add_resource(ProfileSiswa, "/profile-siswa/<id>")
 api.add_resource(UpdateUsernameSiswa, "/update-username-siswa/<id>")
 api.add_resource(UpdatePasswordSiswa, "/update-password-siswa/<id>")
 api.add_resource(TambahMateri, "/tambahmateri")
+api.add_resource(UpdateMateri, "/update-materi/<id>")
 api.add_resource(Admin, "/daftar-admin")
 api.add_resource(ProfileAdmin, "/profile-admin/<id>")
 api.add_resource(UpdateUsernameAdmin, "/update-username-admin/<id>")
