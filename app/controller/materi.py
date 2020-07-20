@@ -6,16 +6,22 @@ import uuid
 from datetime import datetime
 from app.middleware import siswa, admin
 
+def getUser(uuid_user):
+    sql = """select nama from bio_user where uuid_user = %s"""
+    return db.get_one(sql,[uuid_user])
 
 class TambahMateri(Resource):
     @jwt_required
     @admin()
-    def post(self):
+    def post(self,uuid_user):
         now = datetime.now()
         data = request.get_json()
-        sql = """insert into materi values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        params = [str(uuid.uuid4()), data["guru"], data["kelas"], data["mapel"],
-                  data["materi"], data["submateri"], data["isi"], now, now]
+        print(data)
+        user = getUser(uuid_user)
+        print(user)
+        sql = """insert into materi values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        params = [str(uuid.uuid4()), user["nama"], data["kelas"], data["mapel"],
+                  data["materi"], data["submateri"], data["isi"],data["link"], now, now,uuid_user]
         return db.commit_data(sql, params)
 
 
@@ -38,13 +44,13 @@ class DaftarMateriSiswa(Resource):
 class DaftarMateriAdmin(Resource):
     @jwt_required
     @admin()
-    def get(self, mapel, kelas):
-        if mapel == "admin" and kelas == "admin":
+    def get(self, uuid_user):
+        if uuid_user == "admin":
             sql = """select * from materi"""
             return db.get_data(sql)
         else:
-            sql = """select * from materi where mapel = %s and kelas = %s"""
-            return db.get_data(sql,[mapel,kelas])
+            sql = """select * from materi where uuid_user = %s"""
+            return db.get_data(sql,[uuid_user])
 
 
 class UpdateMateri(Resource):

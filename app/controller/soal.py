@@ -8,6 +8,9 @@ from app.middleware import admin, siswa
 from random import shuffle
 import uuid
 
+def getUser(kelas,mapel):
+    sql = """select uuid_user from pengampu where kelas_ampu = %s and bidang_studi = %s"""
+    return db.get_one(sql,[kelas,mapel])
 
 def cekJawaban(kelas, mapel, materi, uuid_soal, jawaban):
     sql = """select kunci_jawaban, skor from soal where kelas = %s and mapel = %s and materi = %s and uuid = %s"""
@@ -22,9 +25,9 @@ def cekSiswa(kelas,mapel,materi,uuid_siswa):
     sql = """select * from skor where kelas = %s and mapel = %s and materi = %s and uuid_siswa = %s"""
     return db.get_one(sql,[kelas,mapel,materi,uuid_siswa])
 
-def postSoal(uuid, kelas, mapel, materi, soal, kunci, skor, tampil, now):
-    sql = """insert into soal values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-    params = [uuid, kelas, mapel, materi, soal, kunci, skor, tampil, now, now]
+def postSoal(uuid, kelas, mapel, materi, soal, kunci, skor, tampil, now, uuid_user):
+    sql = """insert into soal values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+    params = [uuid, kelas, mapel, materi, soal, kunci, skor, tampil, now, now, uuid_user]
     db.commit_data(sql, params)
 
 
@@ -48,13 +51,13 @@ def updateMC(uuid_mc, opsi):
 class SoalAdmin(Resource):
     @jwt_required
     @admin()
-    def get(self, mapel, kelas):
-        if mapel == "admin" and kelas == "admin":
+    def get(self, uuid_user):
+        if uuid_user == "admin":
             sql = """select distinct soal.kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi"""
             return db.get_data(sql)
         else:
-            sql = """select distinct soal.kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.mapel = %s and soal.kelas = %s"""
-            return db.get_data(sql,[mapel,kelas])
+            sql = """select distinct soal.kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.uuid_user = %s"""
+            return db.get_data(sql,[uuid_user])
 
 
 class SoalSiswa(Resource):
@@ -98,14 +101,14 @@ class CekSoal(Resource):
 class TambahSoal(Resource):
     @jwt_required
     @admin()
-    def post(self):
+    def post(self, uuid_user):
         now = datetime.now()
         data = request.get_json()
         for i in data:
             uuid_soal = str(uuid.uuid4())
             uuid_mc = str(uuid.uuid4())
             postSoal(uuid_soal, i["kelas"], i["mapel"],
-                     i["materi"], i["soal"], i["opsi"][0],i["skor"],i["tampil"], now)
+                     i["materi"], i["soal"], i["opsi"][0],i["skor"],i["tampil"], now, uuid_user)
             for j in i["opsi"]:
                 postMC(uuid_soal, j)
 
@@ -124,16 +127,16 @@ class Jawab(Resource):
     def post(self, kelas, mapel, materi):
         now = datetime.now()
         data = request.get_json()
-        # print(data)
         skor = 0
         if cekSiswa(kelas,mapel,materi,data["uuid_siswa"]) == None:
+            user = getUser(kelas,mapel)
             for i in data["hasil"]:
                 jawaban = cekJawaban(kelas, mapel, materi, i["uuid"], i["jawaban"])
                 if jawaban["jawaban"]:
                     skor += jawaban["skor"]
-            sql = """insert into skor values(0,%s,%s,%s,%s,%s,%s,%s)"""
+            sql = """insert into skor values(0,%s,%s,%s,%s,%s,%s,%s,%s)"""
             params = [str(uuid.uuid4()), data["uuid_siswa"],
-                    kelas, mapel, materi, skor, now]
+                    kelas, mapel, materi, user["uuid_user"], skor, now]
             db.commit_data(sql, params)
         else:
             return {"msg": "Anda sudah menjawab soal ini"}
@@ -152,11 +155,17 @@ class SoalJawab(Resource):
         return hasil
 
 class DaftarSkor(Resource):
-    def get(self,mapel,kelas):
-        sql = """select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where siswa.kelas = %s and skor.mapel = %s group by materi"""
-        return db.get_data(sql,[kelas,mapel])
+    @jwt_required
+    def get(self,uuid_user):
+        if uuid_user == "admin":
+            sql = """select distinct kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi"""
+            return db.get_data(sql)
+        else:
+            sql = """select distinct kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi and uuid_user = %s"""
+            return db.get_data(sql,[uuid_user])
 
 class Skor(Resource):
-    def get(self,mapel,kelas,materi):
-        sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where siswa.kelas = %s and skor.mapel = %s and materi = %s"""
-        return db.get_data(sql,[kelas, mapel, materi])
+    @jwt_required
+    def get(self,uuid_user,materi):
+        sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where skor.uuid_user = %s and materi = %s"""
+        return db.get_data(sql,[uuid_user, materi])

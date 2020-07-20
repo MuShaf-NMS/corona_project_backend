@@ -24,6 +24,10 @@ def postUser(uuid_user, username, password, superadmin, now):
     params = [uuid_user, username, password, superadmin, now, now]
     return db.commit_data(sql, params)
 
+def postPengampu(uuid, uuid_user, bidang_studi, kelas_ampu, now):
+    sql = """insert into pengampu values(0,%s,%s,%s,%s,%s,%s)"""
+    params = [uuid,uuid_user,bidang_studi,kelas_ampu,now,now]
+    return db.commit_data(sql, params)
 
 def checkAdmin(user):
     sql = """select * from user where username = %s"""
@@ -120,12 +124,17 @@ class TambahAdmin(Resource):
         if checkingUser(data["username"]):
             uuid_bio = str(uuid.uuid4())
             uuid_user = str(uuid.uuid4())
+            uuid_pengampu = str(uuid.uuid4())
             password = sha256.hash(data["password"])
             tanggal_lahir = stringTime(data["tanggal_lahir"])
             postBioUser(uuid_bio, data["nama"], data["username"], data["jk"], data["alamat"],
                         data["tempat_lahir"], tanggal_lahir, data["hp"], data["email"], now, uuid_user)
             postUser(uuid_user, data["username"],
                      password, data["superadmin"], now)
+            print(data["ampu"])
+            for i in data["ampu"]:
+                print(i)
+                postPengampu(uuid_pengampu,uuid_user,i["bidang_studi"],i["kelas_ampu"],now)
             return {"msg": "Sukses"}
         else:
             return {"msg": "maaf, username ini sudah ada"}

@@ -13,7 +13,7 @@ def verifyHash(password, hash):
 
 
 def checkAdmin(user):
-    sql = """select * from user where username = %s"""
+    sql = """select user.uuid, user.username, user.password, superadmin from user where username = %s"""
     params = [user]
     res = db.get_one(sql, params)
     return res
@@ -60,8 +60,7 @@ class Login(Resource):
                             res["superadmin"] = True
                         else:
                             res["superadmin"] = False
-                            res["bidang_studi"] = user["bidang_studi"]
-                            res["kelas_ampu"] = user["kelas_ampu"]
+                            #res["ampu"] = user["ampu"]
                     elif "kelas" in user:
                         res["kelas"] = user["kelas"]
                     return res
