@@ -17,7 +17,8 @@ def checkAdmin(user):
     params = [user]
     res = db.get_one(sql, params)
     if res["bidang_studi"] != None:
-        res["bidang_studi"] = list(dict.fromkeys(res["bidang_studi"].split(",")))
+        res["bidang_studi"] = list(
+            dict.fromkeys(res["bidang_studi"].split(",")))
         res["kelas_ampu"] = list(dict.fromkeys(res["kelas_ampu"].split(",")))
     else:
         res["bidang_studi"] = []

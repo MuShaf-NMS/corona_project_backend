@@ -178,7 +178,7 @@ class SiswaKelas(Resource):
 class DeleteSiswa(Resource):
     @jwt_required
     @superAdmin()
-    def delete(self,id):
+    def delete(self, id):
         sql = """select uuid_siswa from bio_siswa where uuid = %s"""
         uuid_siswa = db.get_one(sql, [id])["uuid_siswa"]
         deleteBioSiswa(id)

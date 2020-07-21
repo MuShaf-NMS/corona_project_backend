@@ -33,18 +33,22 @@ def postPengampu(uuid_user, bidang_studi, kelas_ampu, now):
 
 def putBioUser(id, nama, jk, alamat, tanggal_lahir, tempat_lahir, hp, email, now):
     sql = """update bio_user set nama = %s, jk = %s, alamat = %s, tanggal_lahir = %s, tempat_lahir = %s, hp = %s, email = %s, updated_at = %s where uuid = %s"""
-    params = [nama, jk, alamat, tanggal_lahir, tempat_lahir, hp, email, now, id]
+    params = [nama, jk, alamat, tanggal_lahir,
+              tempat_lahir, hp, email, now, id]
     db.commit_data(sql, params)
 
-def putUser(id_user,superadmin,now):
+
+def putUser(id_user, superadmin, now):
     sql = """update user set superadmin = %s, updated_at = %s where uuid = %s"""
-    db.commit_data(sql,[superadmin,now,id])
+    db.commit_data(sql, [superadmin, now, id])
+
 
 def putPengampu(uuid_user, bidang_studi, kelas_ampu, now):
-    db.commit_data("""delete from pengampu where uuid_user = %s""",[id_user])
+    db.commit_data("""delete from pengampu where uuid_user = %s""", [id_user])
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
     params = [uuid_user, bidang_studi, kelas_ampu, now]
     return db.commit_data(sql, params)
+
 
 def deleteUser(id):
     sql = """delete from user where uuid = %s"""
@@ -163,7 +167,8 @@ class TambahAdmin(Resource):
                      password, data["superadmin"], now)
             if len(data["ampu"]) > 0:
                 for i in data["ampu"]:
-                    postPengampu(uuid_user, i["bidang_studi"], i["kelas_ampu"], now)
+                    postPengampu(
+                        uuid_user, i["bidang_studi"], i["kelas_ampu"], now)
             return {"msg": "Sukses"}
         else:
             return {"msg": "Maaf"}
@@ -191,19 +196,20 @@ class UpdateAdmin(Resource):
         now = datetime.now()
         data = request.get_json()
         sql = """select uuid_user from bio_user where uuid = %s"""
-        id_user = db.get_one(sql,[id])["uuid_user"]
+        id_user = db.get_one(sql, [id])["uuid_user"]
         tanggal_lahir = stringTime(data["tanggal_lahir"])
-        putBioUser(id,data["nama"],data["jk"],data["alamat"],tanggal_lahir,data["tempat_lahir"],data["hp"],data["email"],now)
-        putUser(id_user,data["superadmin"],now)
+        putBioUser(id, data["nama"], data["jk"], data["alamat"], tanggal_lahir,
+                   data["tempat_lahir"], data["hp"], data["email"], now)
+        putUser(id_user, data["superadmin"], now)
         if len(data["ampu"]) > 0:
             for i in data["ampu"]:
-                putPengampu(id_user,i["bidang_studi"],i["kelas_ampu"])
+                putPengampu(id_user, i["bidang_studi"], i["kelas_ampu"])
 
 
 class DeleteAdmin(Resource):
     def delete(self, id):
         sql = """select uuid_user from bio_user where uuid = %s"""
-        id_user = db.get_one(sql,[id])["uuid_user"]
+        id_user = db.get_one(sql, [id])["uuid_user"]
         deleteBioUser(id)
         deleteUser(id_user)
         deletePengampu(id_user)
