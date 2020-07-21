@@ -16,9 +16,7 @@ class TambahMateri(Resource):
     def post(self,uuid_user):
         now = datetime.now()
         data = request.get_json()
-        print(data)
         user = getUser(uuid_user)
-        print(user)
         sql = """insert into materi values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         params = [str(uuid.uuid4()), user["nama"], data["kelas"], data["mapel"],
                   data["materi"], data["submateri"], data["isi"],data["link"], now, now,uuid_user]
@@ -62,3 +60,8 @@ class UpdateMateri(Resource):
         sql = """update materi set guru = %s, kelas = %s, mapel = %s, materi = %s, submateri = %s, isi = %s, link = %s, updated_at = %s"""
         params = [data["guru"],data["kelas"],data["mapel"],data["materi"],data["submateri"],data["isi"],data["link"],now]
         db.commit_data(sql,params)
+
+class DeleteMateri(Resource):
+    def delete(self,id):
+        sql = """delete from materi where uuid = %s"""
+        db.commit_data(sql,[id])
