@@ -16,8 +16,12 @@ def checkAdmin(user):
     sql = """select user.uuid, user.username, user.password, superadmin, ampu.bidang_studi, ampu.kelas_ampu from user, (select user.uuid, group_concat(bidang_studi) as bidang_studi, group_concat(kelas_ampu) as kelas_ampu from user left outer join pengampu on user.uuid = pengampu.uuid_user group by user.uuid) as ampu where user.uuid = ampu.uuid and username = %s"""
     params = [user]
     res = db.get_one(sql, params)
-    res["bidang_studi"] = list(dict.fromkeys(res["bidang_studi"].split(",")))
-    res["kelas_ampu"] = list(dict.fromkeys(res["kelas_ampu"].split(",")))
+    if res["bidang_studi"] != None:
+        res["bidang_studi"] = list(dict.fromkeys(res["bidang_studi"].split(",")))
+        res["kelas_ampu"] = list(dict.fromkeys(res["kelas_ampu"].split(",")))
+    else:
+        res["bidang_studi"] = []
+        res["kelas_ampu"] = []
     return res
 
 
