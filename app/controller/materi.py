@@ -19,9 +19,9 @@ class TambahMateri(Resource):
         now = datetime.now()
         data = request.get_json()
         user = getUser(uuid_user)
-        sql = """insert into materi values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        params = [str(uuid.uuid4()), user["nama"], data["kelas"], data["mapel"],
-                  data["materi"], data["submateri"], data["isi"], data["link"], now, now, uuid_user]
+        sql = """insert into materi values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        params = [str(uuid.uuid4()), user["nama"], data["uuid_kelas"], data["mapel"],
+                  data["materi"], data["isi"], data["link"], now, now, uuid_user]
         return db.commit_data(sql, params)
 
 
@@ -40,18 +40,38 @@ class DaftarMateriSiswa(Resource):
         result = db.get_data(sql, [kelas])
         return result
 
-
-class DaftarMateriAdmin(Resource):
-    @jwt_required
-    @admin()
-    def get(self, uuid_user):
+class DaftarMateri(Resource):
+    #@jwt_required
+    #@admin()
+    def get(self,uuid_user):
         if uuid_user == "admin":
-            sql = """select * from materi"""
+            sql = """select distinct kelas from materi"""
             return db.get_data(sql)
         else:
-            sql = """select * from materi where uuid_user = %s"""
+            sql = """select distinct kelas from materi where uuid_user = %s"""
             return db.get_data(sql, [uuid_user])
 
+class DaftarMateriKelas(Resource):
+    #@jwt_required
+    #@admin()
+    def get(self, uuid_user, uuid_kelas):
+        if uuid_user == "admin":
+            sql = """select distinct mapel from materi where uuid_kelas = %s"""
+            return db.get_data(sql,[uuid_kelas])
+        else:
+            sql = """select distinct mapel from materi where uuid_user = %s and uuid_kelas = %s"""
+            return db.get_data(sql, [uuid_user,uuid_kelas])
+
+class DaftarMateriMapel(Resource):
+    #@jwt_required
+    #@admin()
+    def get(self, uuid_user, uuid_kelas, mapel):
+        if uuid_user == "admin":
+            sql = """select * from materi where uuid_kelas = %s and mapel = %s"""
+            return db.get_data(sql,[uuid_kelas,mapel])
+        else:
+            sql = """select * from materi where uuid_user = %s and uuid_kelas = %s and mapel = %s"""
+            return db.get_data(sql, [uuid_user,uuid_kelas,mapel])
 
 class UpdateMateri(Resource):
     @jwt_required
@@ -59,9 +79,9 @@ class UpdateMateri(Resource):
     def put(self, id):
         now = datetime.now()
         data = request.get_json()
-        sql = """update materi set guru = %s, kelas = %s, mapel = %s, materi = %s, submateri = %s, isi = %s, link = %s, updated_at = %s"""
-        params = [data["guru"], data["kelas"], data["mapel"],
-                  data["materi"], data["submateri"], data["isi"], data["link"], now]
+        sql = """update materi set guru = %s, uuid_kelas = %s, mapel = %s, materi = %s, isi = %s, link = %s, updated_at = %s where uuid = %s"""
+        params = [data["guru"], data["uuid_kelas"], data["mapel"],
+                  data["materi"], data["isi"], data["link"], now, id]
         db.commit_data(sql, params)
 
 

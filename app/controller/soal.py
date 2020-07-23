@@ -9,14 +9,14 @@ from random import shuffle
 import uuid
 
 
-def getUser(kelas, mapel):
-    sql = """select uuid_user from pengampu where kelas_ampu = %s and bidang_studi = %s"""
-    return db.get_one(sql, [kelas, mapel])
+def getUser(uuid_kelas, mapel):
+    sql = """select uuid_user from pengampu where uuid_kelas = %s and bidang_studi = %s"""
+    return db.get_one(sql, [uuid_kelas, mapel])
 
 
-def cekJawaban(kelas, mapel, materi, uuid_soal, jawaban):
-    sql = """select kunci_jawaban, skor from soal where kelas = %s and mapel = %s and materi = %s and uuid = %s"""
-    hasil = db.get_one(sql, [kelas, mapel, materi, uuid_soal])
+def cekJawaban(uuid_kelas, mapel, materi, uuid_soal, jawaban):
+    sql = """select kunci_jawaban, skor from soal where uuid_kelas = %s and mapel = %s and materi = %s and uuid = %s"""
+    hasil = db.get_one(sql, [uuid_kelas, mapel, materi, uuid_soal])
 
     if hasil["kunci_jawaban"] == jawaban:
         return {"jawaban": True, "skor": hasil["skor"]}
@@ -24,9 +24,9 @@ def cekJawaban(kelas, mapel, materi, uuid_soal, jawaban):
         return {"jawaban": False}
 
 
-def postSoal(uuid, kelas, mapel, materi, soal, kunci, skor, tampil, now, uuid_user):
+def postSoal(uuid, uuid_kelas, mapel, materi, soal, kunci, skor, tampil, now, uuid_user):
     sql = """insert into soal values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-    params = [uuid, kelas, mapel, materi, soal,
+    params = [uuid, uuid_kelas, mapel, materi, soal,
               kunci, skor, tampil, now, now, uuid_user]
     db.commit_data(sql, params)
 
@@ -53,27 +53,27 @@ class SoalAdmin(Resource):
     @admin()
     def get(self, uuid_user):
         if uuid_user == "admin":
-            sql = """select distinct soal.kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi"""
+            sql = """select distinct soal.uuid_kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi"""
             return db.get_data(sql)
         else:
-            sql = """select distinct soal.kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.uuid_user = %s"""
+            sql = """select distinct soal.uuid_kelas, mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.uuid_user = %s"""
             return db.get_data(sql, [uuid_user])
 
 
 class SoalSiswa(Resource):
     @jwt_required
     @siswa()
-    def get(self, kelas):
-        sql = """select distinct mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal where tampil = true group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.kelas = %s"""
-        return db.get_data(sql, [kelas])
+    def get(self, uuid_kelas):
+        sql = """select distinct mapel.mapel, mapel.materi, mapel.jumlah_soal from soal, (select distinct soal.mapel, materi.materi, materi.jumlah_soal from soal, (select distinct soal.materi, count(*) as jumlah_soal from soal where tampil = true group by soal.materi) materi where soal.materi = materi.materi) mapel where soal.materi = mapel.materi and soal.uuid_kelas = %s"""
+        return db.get_data(sql, [uuid_kelas])
 
 
 class CekSoal(Resource):
     @jwt_required
     @admin()
-    def get(self, kelas, mapel, materi):
-        sql = """select soal.uuid, soal.kunci_jawaban, soal.skor, soal.tampil, opsi.soal, opsi.pilihan, opsi.uuid_pilihan from soal, (select soal, group_concat(opsi) as pilihan, group_concat(mc_soal.uuid) as uuid_pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.kelas = %s and soal.mapel = %s and soal.materi = %s group by soal.soal) opsi where soal.soal = opsi.soal"""
-        hasil = db.get_data(sql, [kelas, mapel, materi])
+    def get(self, uuid_kelas, mapel, materi):
+        sql = """select soal.uuid, soal.kunci_jawaban, soal.skor, soal.tampil, opsi.soal, opsi.pilihan, opsi.uuid_pilihan from soal, (select soal, group_concat(opsi) as pilihan, group_concat(mc_soal.uuid) as uuid_pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.uuid_kelas = %s and soal.mapel = %s and soal.materi = %s group by soal.soal) opsi where soal.soal = opsi.soal"""
+        hasil = db.get_data(sql, [uuid_kelas, mapel, materi])
         for i in hasil:
             opsi = []
             for j in i["pilihan"].split(","):
@@ -89,7 +89,7 @@ class CekSoal(Resource):
 
     @jwt_required
     @admin()
-    def put(self, kelas, mapel, materi):
+    def put(self, uuid_kelas, mapel, materi):
         now = datetime.now()
         data = request.get_json()
         for i in data:
@@ -107,7 +107,7 @@ class TambahSoal(Resource):
         for i in data:
             uuid_soal = str(uuid.uuid4())
             uuid_mc = str(uuid.uuid4())
-            postSoal(uuid_soal, i["kelas"], i["mapel"],
+            postSoal(uuid_soal, i["uuid_kelas"], i["mapel"],
                      i["materi"], i["soal"], i["opsi"][0], i["skor"], i["tampil"], now, uuid_user)
             for j in i["opsi"]:
                 postMC(uuid_soal, j)
@@ -116,25 +116,25 @@ class TambahSoal(Resource):
 class Jawab(Resource):
     @jwt_required
     @siswa()
-    def get(self, kelas, mapel, materi):
-        sql = """select soal.uuid from soal where kelas = %s and mapel = %s and materi = %s and tampil = 1"""
-        hasil = db.get_data(sql, [kelas, mapel, materi])
+    def get(self, uuid_kelas, mapel, materi):
+        sql = """select soal.uuid from soal where uuid_kelas = %s and mapel = %s and materi = %s and tampil = 1"""
+        hasil = db.get_data(sql, [uuid_kelas, mapel, materi])
         shuffle(hasil)
         return hasil
 
     @jwt_required
     @siswa()
-    def post(self, kelas, mapel, materi):
+    def post(self, uuid_kelas, mapel, materi):
         now = datetime.now()
         data = request.get_json()
         skor = 0
         user = getUser(kelas, mapel)
         for i in data["hasil"]:
-            jawaban = cekJawaban(kelas, mapel, materi, i["uuid"], i["jawaban"])
+            jawaban = cekJawaban(uuid_kelas, mapel, materi, i["uuid"], i["jawaban"])
             if jawaban["jawaban"]:
                 skor += jawaban["skor"]
         sql = """insert into skor values(0,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        params = [str(uuid.uuid4()), data["uuid_siswa"], kelas,
+        params = [str(uuid.uuid4()), data["uuid_siswa"], uuid_kelas,
                   mapel, materi, user["uuid_user"], skor, now]
         db.commit_data(sql, params)
 
@@ -154,8 +154,8 @@ class SoalJawab(Resource):
 
 
 class CekSiswa(Resource):
-    def get(self, kelas, mapel, materi):
-        sql = """select uuid_siswa from skor where kelas = %s and mapel = %s and materi = %s"""
+    def get(self, uuid_kelas, mapel, materi):
+        sql = """select uuid_siswa from skor where uuid_kelas = %s and mapel = %s and materi = %s"""
         return db.get_one(sql, [kelas, mapel, materi])
 
 
@@ -163,18 +163,22 @@ class DaftarSkor(Resource):
     @jwt_required
     def get(self, uuid_user):
         if uuid_user == "admin":
-            sql = """select distinct kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi"""
+            sql = """select distinct uuid_kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi"""
             return db.get_data(sql)
         else:
-            sql = """select distinct kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi and uuid_user = %s"""
+            sql = """select distinct uuid_kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi and uuid_user = %s"""
             return db.get_data(sql, [uuid_user])
 
 
 class Skor(Resource):
     @jwt_required
     def get(self, uuid_user, materi):
-        sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where skor.uuid_user = %s and materi = %s"""
-        return db.get_data(sql, [uuid_user, materi])
+        if uuid_user == "admin":
+            sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where materi = %s"""
+            return db.get_data(sql,[materi])
+        else:
+            sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where skor.uuid_user = %s and materi = %s"""
+            return db.get_data(sql, [uuid_user, materi])
 
 
 class DeleteSoal(Resource):

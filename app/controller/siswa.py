@@ -19,9 +19,9 @@ def postBioSiswa(uuid, nama, username, jk, alamat, tempat_lahir, tanggal_lahir, 
     return db.commit_data(sql, params)
 
 
-def postSiswa(uuid_siswa, username, password, kelas, now):
+def postSiswa(uuid_siswa, uuid_kelas, username, password, now):
     sql = """insert into siswa values(0,%s,%s,%s,%s,%s,%s)"""
-    params = [uuid_siswa, username, password, kelas, now, now]
+    params = [uuid_siswa, uuid_kelas, username, password, now, now]
     return db.commit_data(sql, params)
 
 
@@ -32,9 +32,9 @@ def putBioSiswa(uuid, nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email, 
     db.commit_data(sql, params)
 
 
-def putSiswa(uuid_siswa, kelas, now):
-    sql = """update siswa set kelas = %s, updated_at = %s where uuid = %s"""
-    params = [kelas, now, uuid_siswa]
+def putSiswa(uuid_siswa, uuid_kelas, now):
+    sql = """update siswa set uuid_kelas = %s, updated_at = %s where uuid = %s"""
+    params = [uuid_kelas, now, uuid_siswa]
     db.commit_data(sql, params)
 
 
@@ -132,8 +132,8 @@ class TambahSiswa(Resource):
             tanggal_lahir = stringTime(data["tanggal_lahir"])
             postBioSiswa(uuid_bio, data["nama"], data["username"], data["jk"], data["alamat"],
                          data["tempat_lahir"], tanggal_lahir, data["hp"], data["email"], now, uuid_siswa)
-            postSiswa(uuid_siswa, data["username"],
-                      password, data["kelas"], now)
+            postSiswa(uuid_siswa, data["uuid_kelas"], data["username"],
+                      password, now)
             return {"msg": "Sukses"}
         else:
             return {"msg": "maaf, username ini sudah ada"}
@@ -143,7 +143,7 @@ class UpdateSiswa(Resource):
     @jwt_required
     @superAdmin()
     def get(self, id):
-        sql = """select nama, kelas, jk, alamat, tempat_lahir, tanggal_lahir, hp, email from bio_siswa join siswa on uuid_siswa = siswa.uuid where bio_siswa.uuid = %s"""
+        sql = """select nama, uuid_kelas, jk, alamat, tempat_lahir, tanggal_lahir, hp, email from bio_siswa join siswa on uuid_siswa = siswa.uuid where bio_siswa.uuid = %s"""
         return db.get_one(sql, [id])
 
     @jwt_required
@@ -156,14 +156,14 @@ class UpdateSiswa(Resource):
         tanggal_lahir = stringTime(data["tanggal_lahir"])
         putBioSiswa(id, data["nama"], data["jk"], data["alamat"],
                     data["tempat_lahir"], tanggal_lahir, data["hp"], data["email"], now)
-        putSiswa(uuid_siswa, data["kelas"], now)
+        putSiswa(uuid_siswa, data["uuid_kelas"], now)
 
 
 class Siswa(Resource):
     @jwt_required
     @superAdmin()
     def get(self):
-        sql = """select kelas, count(*) as jumlah_siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid group by kelas"""
+        sql = """select kelas, count(*) as jumlah_siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join kelas on siswa.uuid_kelas = kelas.uuid group by kelas"""
         return db.get_data(sql)
 
 

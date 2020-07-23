@@ -25,9 +25,9 @@ def postUser(uuid_user, username, password, superadmin, now):
     return db.commit_data(sql, params)
 
 
-def postPengampu(uuid_user, bidang_studi, kelas_ampu, now):
+def postPengampu(uuid_user, uuid_kelas, bidang_studi, now):
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
-    params = [uuid_user, bidang_studi, kelas_ampu, now]
+    params = [uuid_user, uuid_kelas, bidang_studi, now]
     return db.commit_data(sql, params)
 
 
@@ -43,10 +43,10 @@ def putUser(id_user, superadmin, now):
     db.commit_data(sql, [superadmin, now, id])
 
 
-def putPengampu(uuid_user, bidang_studi, kelas_ampu, now):
-    db.commit_data("""delete from pengampu where uuid_user = %s""", [id_user])
+def putPengampu(uuid_user, uuid_kelas, bidang_studi, now):
+    db.commit_data("""delete from pengampu where uuid_user = %s""", [uuid_user])
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
-    params = [uuid_user, bidang_studi, kelas_ampu, now]
+    params = [uuid_user, uuid_kelas, bidang_studi, now]
     return db.commit_data(sql, params)
 
 
@@ -168,7 +168,7 @@ class TambahAdmin(Resource):
             if len(data["ampu"]) > 0:
                 for i in data["ampu"]:
                     postPengampu(
-                        uuid_user, i["bidang_studi"], i["kelas_ampu"], now)
+                        uuid_user, i["uuid_kelas"], i["bidang_studi"], now)
             return {"msg": "Sukses"}
         else:
             return {"msg": "Maaf"}
@@ -178,15 +178,15 @@ class UpdateAdmin(Resource):
     @jwt_required
     @superAdmin()
     def get(self, id):
-        sql = """select nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email, superadmin, ampu.bidang_studi as bidang_studi, ampu.kelas_ampu as kelas_ampu from bio_user left outer join user on bio_user.uuid_user = user.uuid, (select user.uuid, group_concat(bidang_studi) as bidang_studi, group_concat(kelas_ampu) as kelas_ampu from user left outer join pengampu on user.uuid = pengampu.uuid_user group by user.uuid) as ampu where user.uuid = ampu.uuid and bio_user.uuid = %s"""
+        sql = """select nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email, superadmin, ampu.bidang_studi as bidang_studi, ampu.kelas_ampu as uuid_kelas from bio_user left outer join user on bio_user.uuid_user = user.uuid, (select user.uuid, group_concat(bidang_studi) as bidang_studi, group_concat(uuid_kelas) as kelas_ampu from user left outer join pengampu on user.uuid = pengampu.uuid_user group by user.uuid) as ampu where user.uuid = ampu.uuid and bio_user.uuid = %s"""
         res = db.get_one(sql, [id])
         res["ampu"] = []
         if res["bidang_studi"] != None:
             res["bidang_studi"] = res["bidang_studi"].split(",")
-            res["kelas_ampu"] = res["kelas_ampu"].split(",")
-            for i in range(len(res["kelas_ampu"])):
+            res["uuid_kelas"] = res["uuid_kelas"].split(",")
+            for i in range(len(res["bidang_studi"])):
                 ampu = {"bidang_studi": res["bidang_studi"]
-                        [i], "kelas_ampu": res["kelas_ampu"][i]}
+                        [i], "uuid_kelas": res["uuid_kelas"][i]}
                 res["ampu"].append(ampu)
         return res
 
@@ -203,7 +203,7 @@ class UpdateAdmin(Resource):
         putUser(id_user, data["superadmin"], now)
         if len(data["ampu"]) > 0:
             for i in data["ampu"]:
-                putPengampu(id_user, i["bidang_studi"], i["kelas_ampu"])
+                putPengampu(id_user, i["uuid_kelas"], i["bidang_studi"], now)
 
 
 class DeleteAdmin(Resource):
