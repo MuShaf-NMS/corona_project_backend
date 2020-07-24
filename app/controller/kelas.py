@@ -42,18 +42,36 @@ class TambahKelas(Resource):
         db.commit_data(sql,[uuid_kelas, data["kelas"], data["label"]])
 
 class UpdateKelas(Resource):
-    def get(self,uuid):
+    def get(self,uuid_kelas):
         sql = """select * from kelas where uuid = %s"""
-        print(db.get_one(sql,[uuid]))
-        return db.get_one(sql,[uuid])
+        print(db.get_one(sql,[uuid_kelas]))
+        return db.get_one(sql,[uuid_kelas])
     
-    def put(self,uuid):
+    def put(self,uuid_kelas):
         data = request.get_json()
         print(data)
         sql = """update kelas set kelas = %s, label = %s where uuid = %s"""
-        db.commit_data(sql,[data["kelas"],data["label"],uuid])
+        db.commit_data(sql,[data["kelas"],data["label"],uuid_kelas])
 
 class DeleteKelas(Resource):
-    def delete(self,uuid):
+    def delete(self,uuid_kelas):
         sql = """delete from kelas where uuid = %s"""
-        db.commit_data(sql,[uuid])
+        db.commit_data(sql,[uuid_kelas])
+
+
+class Ampu(Resource):
+    def get(self,uuid_user):
+        if uuid_user == "admin":
+            sql = """select bidang_studi, kelas, label, uuid_kelas from pengampu join kelas on pengampu.uuid_kelas = kelas.uuid"""
+            res = db.get_data(sql)
+        else:
+            sql = """select bidang_studi, kelas, label, uuid_kelas from pengampu join kelas on pengampu.uuid_kelas = kelas.uuid where pengmpu.uuid_user = %s"""
+            res = db.get_data(sql,[uuid_user])
+        print(res)
+        for i in res:
+            i["text"] = str(i["kelas"])+" "+i["label"]
+            i["value"] = i["uuid_kelas"]
+            del i["label"]
+            del i["uuid_kelas"]
+            del i["kelas"]
+        return res

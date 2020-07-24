@@ -1,10 +1,11 @@
 from app import api
 from app.controller.user import Login, LogoutAccessToken, LogoutRefreshToken
-from app.controller.siswa import TambahSiswa, ProfileSiswa, SiswaKelas, Siswa, UpdateUsernameSiswa, UpdatePasswordSiswa, UpdateSiswa, DeleteSiswa
+from app.controller.siswa import TambahSiswa, ProfileSiswa, SiswaKelas, DaftarSiswa, UpdateUsernameSiswa, UpdatePasswordSiswa, UpdateSiswa, DeleteSiswa, SiswaKelasCabang
 from app.controller.admin import TambahAdmin, Admin, ProfileAdmin, UpdatePasswordAdmin, UpdateUsernameAdmin, UpdateAdmin, DeleteAdmin
 from app.controller.soal import TambahSoal, Jawab, SoalAdmin, CekSoal, SoalSiswa, SoalJawab, DaftarSkor, Skor, DeleteSoal, CekSiswa
 from app.controller.materi import TambahMateri, DetailMateri, DaftarMateriSiswa, DaftarMateri, DaftarMateriKelas, DaftarMateriMapel, UpdateMateri, DeleteMateri
-from app.controller.kelas import DaftarKelas, TambahKelas, UpdateKelas, DeleteKelas, Kelas, DaftarKelasLabel
+from app.controller.kelas import DaftarKelas, TambahKelas, UpdateKelas, DeleteKelas, Kelas, DaftarKelasLabel, Ampu
+from app.controller.mapel import Mapel, DaftarMapel, UpdateMapel, TambahMapel, DeleteMapel
 
 api.add_resource(Login, "/login")
 api.add_resource(LogoutAccessToken, "/logout-access-token")
@@ -30,8 +31,9 @@ api.add_resource(Admin, "/daftar-admin")
 api.add_resource(ProfileAdmin, "/profile-admin/<id>")
 api.add_resource(UpdateUsernameAdmin, "/update-username-admin/<id>")
 api.add_resource(UpdatePasswordAdmin, "/update-password-admin/<id>")
-api.add_resource(SiswaKelas, "/daftar-siswa/<kelas>")
-api.add_resource(Siswa, "/daftar-siswa")
+api.add_resource(SiswaKelas, "/siswa/<kelas>")
+api.add_resource(SiswaKelasCabang, "/siswa/<kelas>/<label>")
+api.add_resource(DaftarSiswa, "/daftar-siswa/<kelas>/<label>")
 api.add_resource(TambahSoal, "/tambah-soal/<uuid_user>")
 api.add_resource(DeleteSoal, "/delete-soal/<id>")
 api.add_resource(Jawab, "/jawab-soal/<kelas>/<mapel>/<materi>")
@@ -44,7 +46,13 @@ api.add_resource(DaftarSkor, "/skor/<uuid_user>")
 api.add_resource(Skor, "/skor/<uuid_user>/<materi>")
 api.add_resource(DaftarKelas, "/daftar-kelas")
 api.add_resource(TambahKelas, "/tambah-kelas")
-api.add_resource(UpdateKelas, "/update-kelas/<uuid>")
-api.add_resource(DeleteKelas, "/delete-kelas/<uuid>")
+api.add_resource(UpdateKelas, "/update-kelas/<uuid_kelas>")
+api.add_resource(DeleteKelas, "/delete-kelas/<uuid_kelas>")
 api.add_resource(Kelas, "/kelas/<uuid_user>")
+api.add_resource(Ampu, "/ampu/<uuid_user>")
 api.add_resource(DaftarKelasLabel, "/daftar-kelas/<kelas>")
+api.add_resource(Mapel, "/mapel/<uuid_user>")
+api.add_resource(DaftarMapel, "/daftar-mapel")
+api.add_resource(TambahMapel, "/tambah-mapel")
+api.add_resource(UpdateMapel, "/update-mapel/<uuid_mapel>")
+api.add_resource(DeleteMapel, "/delete-matel/<uuid_mapel>")

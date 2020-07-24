@@ -159,21 +159,28 @@ class UpdateSiswa(Resource):
         putSiswa(uuid_siswa, data["uuid_kelas"], now)
 
 
-class Siswa(Resource):
-    @jwt_required
-    @superAdmin()
-    def get(self):
-        sql = """select kelas, count(*) as jumlah_siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join kelas on siswa.uuid_kelas = kelas.uuid group by kelas"""
-        return db.get_data(sql)
+class DaftarSiswa(Resource):
+    #@jwt_required
+    #@superAdmin()
+    def get(self, kelas, label):
+        sql = """select nama, jk, bio_siswa.uuid from bio_siswa join siswa on siswa.uuid = bio_siswa.uuid_siswa join kelas on siswa.uuid_kelas = kelas.uuid where kelas = %s and label = %s"""
+        return db.get_data(sql,[kelas,label])
 
 
 class SiswaKelas(Resource):
     @jwt_required
     @superAdmin()
     def get(self, kelas):
-        sql = """select bio_siswa.uuid, nama, jk, alamat, bio_siswa.created_at, bio_siswa.updated_at from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid where kelas = %s"""
-        return db.get_data(sql, [kelas])
+        sql = """select kelas, count(cabang.label) as cabang, sum(cabang.siswa) as jml_siswa from kelas, (select label, count(username) as siswa from kelas left outer join siswa on kelas.uuid = siswa.uuid_kelas where kelas = %s group by label) as cabang where kelas.label = cabang.label and kelas = %s group by kelas"""
+        return db.get_one(sql, [kelas,kelas])
 
+
+class SiswaKelasCabang(Resource):
+    @jwt_required
+    @superAdmin()
+    def get(self, kelas, label):
+        sql = """select kelas, label, count(username) as jml_siswa from kelas join siswa on kelas.uuid = siswa.uuid_kelas where kelas = %s and label = %s"""
+        return db.get_one(sql,[kelas,label])
 
 class DeleteSiswa(Resource):
     @jwt_required
@@ -183,3 +190,4 @@ class DeleteSiswa(Resource):
         uuid_siswa = db.get_one(sql, [id])["uuid_siswa"]
         deleteBioSiswa(id)
         deleteSiswa(uuid_siswa)
+

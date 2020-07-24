@@ -21,13 +21,14 @@ def postBioUser(uuid, nama, username, jk, alamat, tempat_lahir, tanggal_lahir, h
 
 def postUser(uuid_user, username, password, superadmin, now):
     sql = """insert into user values(0,%s,%s,%s,%s,%s,%s)"""
+    print(superadmin)
     params = [uuid_user, username, password, superadmin, now, now]
     return db.commit_data(sql, params)
 
 
-def postPengampu(uuid_user, uuid_kelas, bidang_studi, now):
+def postPengampu(uuid_user, uuid_kelas, uuid_mapel, now):
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
-    params = [uuid_user, uuid_kelas, bidang_studi, now]
+    params = [uuid_user, uuid_kelas, uuid_mapel, now]
     return db.commit_data(sql, params)
 
 
@@ -40,13 +41,14 @@ def putBioUser(id, nama, jk, alamat, tanggal_lahir, tempat_lahir, hp, email, now
 
 def putUser(id_user, superadmin, now):
     sql = """update user set superadmin = %s, updated_at = %s where uuid = %s"""
+    print(superadmin)
     db.commit_data(sql, [superadmin, now, id])
 
 
-def putPengampu(uuid_user, uuid_kelas, bidang_studi, now):
+def putPengampu(uuid_user, uuid_kelas, uuid_mapel, now):
     db.commit_data("""delete from pengampu where uuid_user = %s""", [uuid_user])
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
-    params = [uuid_user, uuid_kelas, bidang_studi, now]
+    params = [uuid_user, uuid_kelas, uuid_mapel, now]
     return db.commit_data(sql, params)
 
 
@@ -61,7 +63,7 @@ def deleteBioUser(id):
 
 
 def deletePengampu(id):
-    sql = """delete from pengampu where uuid = %s"""
+    sql = """delete from pengampu where uuid_user = %s"""
     db.commit_data(sql, [id])
 
 
@@ -168,33 +170,42 @@ class TambahAdmin(Resource):
             if len(data["ampu"]) > 0:
                 for i in data["ampu"]:
                     postPengampu(
-                        uuid_user, i["uuid_kelas"], i["bidang_studi"], now)
+                        uuid_user, i["uuid_kelas"], i["uuid_mapel"], now)
             return {"msg": "Sukses"}
         else:
             return {"msg": "Maaf"}
 
 
 class UpdateAdmin(Resource):
-    @jwt_required
-    @superAdmin()
+    #@jwt_required
+    #@superAdmin()
     def get(self, id):
-        sql = """select nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email, superadmin, ampu.bidang_studi as bidang_studi, ampu.kelas_ampu as uuid_kelas from bio_user left outer join user on bio_user.uuid_user = user.uuid, (select user.uuid, group_concat(bidang_studi) as bidang_studi, group_concat(uuid_kelas) as kelas_ampu from user left outer join pengampu on user.uuid = pengampu.uuid_user group by user.uuid) as ampu where user.uuid = ampu.uuid and bio_user.uuid = %s"""
+        sql = """select nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email, superadmin, ampu.uuid_mapel as uuid_mapel, ampu.kelas_ampu as uuid_kelas from bio_user left outer join user on bio_user.uuid_user = user.uuid, (select user.uuid, group_concat(uuid_mapel) as uuid_mapel, group_concat(uuid_kelas) as kelas_ampu from user left outer join pengampu on user.uuid = pengampu.uuid_user group by user.uuid) as ampu where user.uuid = ampu.uuid and bio_user.uuid = %s"""
         res = db.get_one(sql, [id])
+        
         res["ampu"] = []
-        if res["bidang_studi"] != None:
-            res["bidang_studi"] = res["bidang_studi"].split(",")
+        if res["uuid_mapel"] != None:
+            res["uuid_mapel"] = res["uuid_mapel"].split(",")
             res["uuid_kelas"] = res["uuid_kelas"].split(",")
-            for i in range(len(res["bidang_studi"])):
-                ampu = {"bidang_studi": res["bidang_studi"]
+            for i in range(len(res["uuid_mapel"])):
+                ampu = {"uuid_mapel": res["uuid_mapel"]
                         [i], "uuid_kelas": res["uuid_kelas"][i]}
                 res["ampu"].append(ampu)
+            del res["uuid_mapel"]
+            del res["uuid_kelas"]
+        if res["superadmin"] == 1:
+                res["superadmin"] = True
+        else:
+            res["superadmin"] = False
+        print(res)
         return res
 
-    @jwt_required
-    @superAdmin()
+    #@jwt_required
+    #@superAdmin()
     def put(self, id):
         now = datetime.now()
         data = request.get_json()
+        print(data)
         sql = """select uuid_user from bio_user where uuid = %s"""
         id_user = db.get_one(sql, [id])["uuid_user"]
         tanggal_lahir = stringTime(data["tanggal_lahir"])
@@ -203,7 +214,7 @@ class UpdateAdmin(Resource):
         putUser(id_user, data["superadmin"], now)
         if len(data["ampu"]) > 0:
             for i in data["ampu"]:
-                putPengampu(id_user, i["uuid_kelas"], i["bidang_studi"], now)
+                putPengampu(id_user, i["uuid_kelas"], i["uuid_mapel"], now)
 
 
 class DeleteAdmin(Resource):
