@@ -41,12 +41,12 @@ def putBioUser(id, nama, jk, alamat, tanggal_lahir, tempat_lahir, hp, email, now
 
 def putUser(id_user, superadmin, now):
     sql = """update user set superadmin = %s, updated_at = %s where uuid = %s"""
-    print(superadmin)
-    db.commit_data(sql, [superadmin, now, id])
+    db.commit_data(sql, [superadmin, now, id_user])
 
 
 def putPengampu(uuid_user, uuid_kelas, uuid_mapel, now):
-    db.commit_data("""delete from pengampu where uuid_user = %s""", [uuid_user])
+    db.commit_data(
+        """delete from pengampu where uuid_user = %s""", [uuid_user])
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
     params = [uuid_user, uuid_kelas, uuid_mapel, now]
     return db.commit_data(sql, params)
@@ -177,12 +177,12 @@ class TambahAdmin(Resource):
 
 
 class UpdateAdmin(Resource):
-    #@jwt_required
-    #@superAdmin()
+    @jwt_required
+    @superAdmin()
     def get(self, id):
         sql = """select nama, jk, alamat, tempat_lahir, tanggal_lahir, hp, email, superadmin, ampu.uuid_mapel as uuid_mapel, ampu.kelas_ampu as uuid_kelas from bio_user left outer join user on bio_user.uuid_user = user.uuid, (select user.uuid, group_concat(uuid_mapel) as uuid_mapel, group_concat(uuid_kelas) as kelas_ampu from user left outer join pengampu on user.uuid = pengampu.uuid_user group by user.uuid) as ampu where user.uuid = ampu.uuid and bio_user.uuid = %s"""
         res = db.get_one(sql, [id])
-        
+
         res["ampu"] = []
         if res["uuid_mapel"] != None:
             res["uuid_mapel"] = res["uuid_mapel"].split(",")
@@ -194,14 +194,14 @@ class UpdateAdmin(Resource):
             del res["uuid_mapel"]
             del res["uuid_kelas"]
         if res["superadmin"] == 1:
-                res["superadmin"] = True
+            res["superadmin"] = True
         else:
             res["superadmin"] = False
         print(res)
         return res
 
-    #@jwt_required
-    #@superAdmin()
+    @jwt_required
+    @superAdmin()
     def put(self, id):
         now = datetime.now()
         data = request.get_json()

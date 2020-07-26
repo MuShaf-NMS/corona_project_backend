@@ -81,7 +81,7 @@ CREATE TABLE `bio_user` (
 
 LOCK TABLES `bio_user` WRITE;
 /*!40000 ALTER TABLE `bio_user` DISABLE KEYS */;
-INSERT INTO `bio_user` VALUES (16,'3591d02f-7e95-4678-8364-22cbf8e26c54','Muhammad Shafa','superadmin','L','Peteluan','Peteluan','2000-08-06','087763243698','nurmuhammadshafa@gmail.com','2020-07-01 21:40:16','2020-07-01 21:40:16','67a89c89-d7a6-4c95-b5f1-6ef75dacdc4b'),(17,'507ae00a-6042-4693-bc4e-e0fb7546807c','superadmin1','superadmin1','L','Peteluan','Peteluan','2000-08-06','087763243698','nurmuhammadshafa@gmail.com','2020-07-15 12:05:10','2020-07-15 17:19:31','34928e60-0498-4477-971e-24fd03fc6759'),(29,'e37a69a3-f422-454e-8b1b-bbb3c71c0bb9','admin1','admin1','P','Lombok','Lombok','2020-07-01','092759079502','cnopqhfohoi@ljo.com','2020-07-24 21:06:46','2020-07-24 21:14:43','8d8edf52-ffe1-4aa3-92fe-e1789ff7b074'),(30,'ae23c014-5d2a-403e-be1d-c4d0e2ffba0b','admin2','admin2','P','Lombok','Lombok','2020-07-01','2097502752','jpofjpofjqo@fajo.com','2020-07-24 21:17:20','2020-07-24 22:51:38','b5fe3989-664f-4ff6-92fe-40e394ce923c');
+INSERT INTO `bio_user` VALUES (16,'3591d02f-7e95-4678-8364-22cbf8e26c54','Muhammad Shafa','superadmin','L','Peteluan','Peteluan','2000-08-06','087763243698','nurmuhammadshafa@gmail.com','2020-07-01 21:40:16','2020-07-01 21:40:16','67a89c89-d7a6-4c95-b5f1-6ef75dacdc4b'),(17,'507ae00a-6042-4693-bc4e-e0fb7546807c','superadmin1','superadmin1','L','Peteluan','Peteluan','2000-08-06','087763243698','nurmuhammadshafa@gmail.com','2020-07-15 12:05:10','2020-07-15 17:19:31','34928e60-0498-4477-971e-24fd03fc6759'),(29,'e37a69a3-f422-454e-8b1b-bbb3c71c0bb9','admin1','admin1','P','Lombok','Lombok','2020-07-01','092759079502','cnopqhfohoi@ljo.com','2020-07-24 21:06:46','2020-07-24 21:14:43','8d8edf52-ffe1-4aa3-92fe-e1789ff7b074'),(30,'ae23c014-5d2a-403e-be1d-c4d0e2ffba0b','admin2','admin2','P','Lombok','Lombok','2020-07-01','2097502752','jpofjpofjqo@fajo.com','2020-07-24 21:17:20','2020-07-24 23:35:04','b5fe3989-664f-4ff6-92fe-40e394ce923c');
 /*!40000 ALTER TABLE `bio_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -232,7 +232,7 @@ CREATE TABLE `pengampu` (
   `uuid_mapel` varchar(255) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -241,7 +241,7 @@ CREATE TABLE `pengampu` (
 
 LOCK TABLES `pengampu` WRITE;
 /*!40000 ALTER TABLE `pengampu` DISABLE KEYS */;
-INSERT INTO `pengampu` VALUES (2,'80bc8ec2-c0bf-4aad-b021-5b1b0f81424c','6d666b6d-4285-43f0-a5d5-121d354abdc4',NULL,'2020-07-23 18:01:53'),(5,'8d8edf52-ffe1-4aa3-92fe-e1789ff7b074','45f6fe99-95a2-4aab-bbd6-7dbb014630b7','ccf3ae86-4db5-4128-b9e0-96ca9474970f','2020-07-24 21:14:43'),(21,'b8c66234-ad03-4d29-9894-7742492bcb0e','ce323344-0f53-420f-9ee1-68b1bc0a0eea','21dd3e21-d56e-4092-a759-b40b0f6800f4','2020-07-24 21:55:03'),(30,'b5fe3989-664f-4ff6-92fe-40e394ce923c','45f6fe99-95a2-4aab-bbd6-7dbb014630b7','ccf3ae86-4db5-4128-b9e0-96ca9474970f','2020-07-24 22:51:38');
+INSERT INTO `pengampu` VALUES (2,'80bc8ec2-c0bf-4aad-b021-5b1b0f81424c','6d666b6d-4285-43f0-a5d5-121d354abdc4',NULL,'2020-07-23 18:01:53'),(5,'8d8edf52-ffe1-4aa3-92fe-e1789ff7b074','45f6fe99-95a2-4aab-bbd6-7dbb014630b7','ccf3ae86-4db5-4128-b9e0-96ca9474970f','2020-07-24 21:14:43'),(21,'b8c66234-ad03-4d29-9894-7742492bcb0e','ce323344-0f53-420f-9ee1-68b1bc0a0eea','21dd3e21-d56e-4092-a759-b40b0f6800f4','2020-07-24 21:55:03'),(31,'b5fe3989-664f-4ff6-92fe-40e394ce923c','45f6fe99-95a2-4aab-bbd6-7dbb014630b7','ccf3ae86-4db5-4128-b9e0-96ca9474970f','2020-07-24 23:35:04');
 /*!40000 ALTER TABLE `pengampu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -365,7 +365,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (9,'67a89c89-d7a6-4c95-b5f1-6ef75dacdc4b','superadmin','$pbkdf2-sha256$29000$eg9hDIGw9r5XqtW6t7Z2jg$Rw3W2FvAyZHAklDwCbzPeHeQE9qO8WMX8T1CXZLfxzA',1,'2020-07-01 21:40:16','2020-07-01 21:40:16'),(10,'34928e60-0498-4477-971e-24fd03fc6759','superadmin1','$pbkdf2-sha256$29000$GsOY03qv1VpLqbU2JiSkVA$bgjQmjsNLyr.XbKhqNUuLn31sZCt1oDQjZZZBNOszC8',1,'2020-07-15 12:05:10','2020-07-15 12:05:10'),(20,'8d8edf52-ffe1-4aa3-92fe-e1789ff7b074','admin1','$pbkdf2-sha256$29000$670XgnDO2bv3vreW8l4rBQ$yXc5oQyXRg/9m8vziX2HgawIUa.jfDypLurx68tcvEc',0,'2020-07-24 21:06:46','2020-07-24 21:06:46'),(21,'b5fe3989-664f-4ff6-92fe-40e394ce923c','admin2','$pbkdf2-sha256$29000$UCplDMHYWyslxBhjjHFuTQ$wfXaDrgzsW12j80wAyd6F5yc6ENb85s19k8hkiYVJqI',1,'2020-07-24 21:17:20','2020-07-24 21:17:20');
+INSERT INTO `user` VALUES (9,'67a89c89-d7a6-4c95-b5f1-6ef75dacdc4b','superadmin','$pbkdf2-sha256$29000$eg9hDIGw9r5XqtW6t7Z2jg$Rw3W2FvAyZHAklDwCbzPeHeQE9qO8WMX8T1CXZLfxzA',1,'2020-07-01 21:40:16','2020-07-01 21:40:16'),(10,'34928e60-0498-4477-971e-24fd03fc6759','superadmin1','$pbkdf2-sha256$29000$GsOY03qv1VpLqbU2JiSkVA$bgjQmjsNLyr.XbKhqNUuLn31sZCt1oDQjZZZBNOszC8',1,'2020-07-15 12:05:10','2020-07-15 12:05:10'),(20,'8d8edf52-ffe1-4aa3-92fe-e1789ff7b074','admin1','$pbkdf2-sha256$29000$670XgnDO2bv3vreW8l4rBQ$yXc5oQyXRg/9m8vziX2HgawIUa.jfDypLurx68tcvEc',0,'2020-07-24 21:06:46','2020-07-24 21:06:46'),(21,'b5fe3989-664f-4ff6-92fe-40e394ce923c','admin2','$pbkdf2-sha256$29000$UCplDMHYWyslxBhjjHFuTQ$wfXaDrgzsW12j80wAyd6F5yc6ENb85s19k8hkiYVJqI',0,'2020-07-24 21:17:20','2020-07-24 23:35:04');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -378,4 +378,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-07-24 22:59:13
+-- Dump completed on 2020-07-24 23:45:58
