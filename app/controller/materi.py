@@ -50,7 +50,7 @@ class DaftarMateriSiswaKelas(Resource):
     # @siswa()
     def get(self, uuid_kelas):
         kelas = getKelas(uuid_kelas)
-        sql = """select mapel, uuid_mapel from materi join mapel on mapel.uuid = materi.uuid_mapel join siswa on materi.uuid_kelas = siswa.uuid_kelas where siswa.uuid_kelas = %s"""
+        sql = """select distinct mapel, uuid_mapel from mapel join pengampu on mapel.uuid = pengampu.uuid_mapel join kelas on pengampu.uuid_kelas = kelas.uuid where pengampu.uuid_kelas = %s"""
         result = db.get_data(sql, [uuid_kelas])
         return {"kelas": kelas, "mapel": result}
 
@@ -91,10 +91,10 @@ class DaftarMateriKelas(Resource):
 class DaftarMateriKelasLabel(Resource):
     def get(self, uuid_user, kelas, label):
         if uuid_user == "admin":
-            sql = """select mapel from materi join kelas on materi.uuid_kelas = kelas.uuid join mapel on mapel.uuid = materi.uuid_mapel where kelas = %s and label = %s"""
+            sql = """select distinct mapel from mapel join pengampu on mapel.uuid = pengampu.uuid_mapel join kelas on pengampu.uuid_kelas = kelas.uuid where kelas = %s and label = %s"""
             return db.get_data(sql, [kelas, label])
         else:
-            sql = """select mapel from materi join pengampu on materi.uuid_user = pengampu.uuid_user join kelas on materi.uuid_kelas = kelas.uuid join mapel on mapel.uuid = materi.uuid_mapel where materi.uuid_user = %s and kelas = %s and label = %s"""
+            sql = """select distinct mapel from mapel join pengampu on mapel.uuid = pengampu.uuid_mapel join kelas on pengampu.uuid_kelas = kelas.uuid where pengampu.uuid_user = %s and kelas = %s and label = %s"""
             return db.get_data(sql, [uuid_user, kelas, label])
 
 

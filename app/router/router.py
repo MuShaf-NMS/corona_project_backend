@@ -5,7 +5,8 @@ from app.controller.siswa import TambahSiswa, ProfileSiswa, SiswaKelas, DaftarSi
 from app.controller.kelas import DaftarKelas, TambahKelas, UpdateKelas, DeleteKelas, Kelas, DaftarKelasLabel
 from app.controller.mapel import Mapel, DaftarMapel, UpdateMapel, TambahMapel, DeleteMapel
 from app.controller.materi import TambahMateri, DetailMateri, DaftarMateriSiswaKelas, DaftarMateriSiswaMapel, DaftarMateri, DaftarMateriKelas, DaftarMateriKelasLabel, DaftarMateriMapel, UpdateMateri, DeleteMateri, Materi
-from app.controller.soal import TambahSoal, Jawab, CekSoal, SoalJawab, DaftarSkor, Skor, DeleteSoal, CekSiswa, DaftarSoal, DaftarSoalKelas, DaftarSoalKelasLabel, DaftarSoalMapel, Tampil, JumlahSoal, DaftarSoalSiswaKelas, DaftarSoalSiswaMapel
+from app.controller.soal import TambahSoal, Jawab, CekSoal, SoalJawab, DeleteSoal, CekSiswa, DaftarSoal, DaftarSoalKelas, DaftarSoalKelasLabel, DaftarSoalMapel, Tampil, JumlahSoal, DaftarSoalSiswaKelas, DaftarSoalSiswaMapel
+from app.controller.skor import Skor
 
 # user
 api.add_resource(Login, "/login")
@@ -75,5 +76,5 @@ api.add_resource(Jawab, "/jawab-soal/<uuid_materi>")
 api.add_resource(CekSoal, "/ceksoal/<uuid_materi>")
 api.add_resource(SoalJawab, "/get-soal/<id>")
 api.add_resource(CekSiswa, "/cek-siswa/<uuid_materi>")
-api.add_resource(DaftarSkor, "/skor/<uuid_user>")
-api.add_resource(Skor, "/skor/<uuid_user>/<materi>")
+# skor
+api.add_resource(Skor, "/skor/<uuid_user>/<uuid_materi>")

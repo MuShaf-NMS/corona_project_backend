@@ -245,28 +245,6 @@ class CekSiswa(Resource):
         return db.get_one(sql, [uuid_materi])
 
 
-class DaftarSkor(Resource):
-    @jwt_required
-    def get(self, uuid_user):
-        if uuid_user == "admin":
-            sql = """select distinct uuid_kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi"""
-            return db.get_data(sql)
-        else:
-            sql = """select distinct uuid_kelas, mapel, materi.materi, materi.siswa from skor,(select materi, count(*) as siswa from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa group by materi) as materi where skor.materi = materi.materi and uuid_user = %s"""
-            return db.get_data(sql, [uuid_user])
-
-
-class Skor(Resource):
-    @jwt_required
-    def get(self, uuid_user, materi):
-        if uuid_user == "admin":
-            sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where materi = %s"""
-            return db.get_data(sql, [materi])
-        else:
-            sql = """select nama, skor from bio_siswa join siswa on bio_siswa.uuid_siswa = siswa.uuid join skor on siswa.uuid = skor.uuid_siswa where skor.uuid_user = %s and materi = %s"""
-            return db.get_data(sql, [uuid_user, materi])
-
-
 class DeleteSoal(Resource):
     def delete(self, id):
         sql = """delete from soal where uuid = %s"""
