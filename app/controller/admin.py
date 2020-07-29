@@ -218,6 +218,8 @@ class UpdateAdmin(Resource):
 
 
 class DeleteAdmin(Resource):
+    @jwt_required
+    @superAdmin()
     def delete(self, id):
         sql = """select uuid_user from bio_user where uuid = %s"""
         id_user = db.get_one(sql, [id])["uuid_user"]

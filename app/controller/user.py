@@ -3,8 +3,8 @@ from app import app, db
 from flask import request
 from datetime import datetime, timedelta
 from passlib.hash import pbkdf2_sha256 as sha256
-from flask_jwt_extended import(create_access_token, create_refresh_token,
-                               jwt_refresh_token_required, get_jwt_identity, get_raw_jwt, jwt_required)
+from flask_jwt_extended import(
+    create_access_token, get_jwt_identity, get_raw_jwt, jwt_required)
 import uuid
 
 
@@ -47,7 +47,6 @@ class Login(Resource):
                 if verifyHash(data["password"], user["password"]):
                     accessToken = create_access_token(
                         identity=user["uuid"], expires_delta=timedelta(hours=6))
-                    refreshToken = ''
                     res = {
                         "accessToken": accessToken,
                         "username": data["username"],
@@ -80,14 +79,4 @@ class LogoutAccessToken(Resource):
         saveBlacklistToken(jti)
         return {
             "msg": "token has been revoked"
-        }
-
-
-class LogoutRefreshToken(Resource):
-    @jwt_refresh_token_required
-    def get(self):
-        jti = get_raw_jwt()["jti"]
-        saveBlacklistToken(jti)
-        return {
-            "msg": "refresh token has been revoked"
         }

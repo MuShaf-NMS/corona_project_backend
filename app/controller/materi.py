@@ -46,8 +46,8 @@ class DetailMateri(Resource):
 
 
 class DaftarMateriSiswaKelas(Resource):
-    # @jwt_required
-    # @siswa()
+    @jwt_required
+    @siswa()
     def get(self, uuid_kelas):
         kelas = getKelas(uuid_kelas)
         sql = """select distinct mapel, uuid_mapel from mapel join pengampu on mapel.uuid = pengampu.uuid_mapel join kelas on pengampu.uuid_kelas = kelas.uuid where pengampu.uuid_kelas = %s"""
@@ -56,6 +56,8 @@ class DaftarMateriSiswaKelas(Resource):
 
 
 class DaftarMateriSiswaMapel(Resource):
+    @jwt_required
+    @siswa()
     def get(self, uuid_kelas, uuid_mapel):
         kelas = getKelas(uuid_kelas)
         mapel = getMapel(uuid_mapel)
@@ -65,8 +67,8 @@ class DaftarMateriSiswaMapel(Resource):
 
 
 class DaftarMateri(Resource):
-    # @jwt_required
-    # @admin()
+    @jwt_required
+    @admin()
     def get(self, uuid_user):
         if uuid_user == "admin":
             sql = """select distinct kelas from kelas"""
@@ -77,8 +79,8 @@ class DaftarMateri(Resource):
 
 
 class DaftarMateriKelas(Resource):
-    # @jwt_required
-    # @admin()
+    @jwt_required
+    @admin()
     def get(self, uuid_user, kelas):
         if uuid_user == "admin":
             sql = """select label from kelas where kelas = %s"""
@@ -89,6 +91,8 @@ class DaftarMateriKelas(Resource):
 
 
 class DaftarMateriKelasLabel(Resource):
+    @jwt_required
+    @admin()
     def get(self, uuid_user, kelas, label):
         if uuid_user == "admin":
             sql = """select distinct mapel from mapel join pengampu on mapel.uuid = pengampu.uuid_mapel join kelas on pengampu.uuid_kelas = kelas.uuid where kelas = %s and label = %s"""
@@ -99,8 +103,8 @@ class DaftarMateriKelasLabel(Resource):
 
 
 class DaftarMateriMapel(Resource):
-    # @jwt_required
-    # @admin()
+    @jwt_required
+    @admin()
     def get(self, uuid_user, kelas, label, mapel):
         if uuid_user == "admin":
             sql = """select materi.uuid, materi from materi join kelas on materi.uuid_kelas = kelas.uuid join mapel on mapel.uuid = materi.uuid_mapel where kelas = %s and label = %s and mapel = %s"""
@@ -111,6 +115,8 @@ class DaftarMateriMapel(Resource):
 
 
 class Materi(Resource):
+    @jwt_required
+    @admin()
     def get(self, uuid_kelas, uuid_mapel):
         sql = """select materi, uuid from materi where uuid_kelas = %s and uuid_mapel = %s"""
         res = db.get_data(sql, [uuid_kelas, uuid_mapel])

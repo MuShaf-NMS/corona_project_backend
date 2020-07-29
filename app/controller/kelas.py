@@ -4,11 +4,13 @@ from app import app, db
 from flask_jwt_extended import jwt_required
 from datetime import datetime
 from passlib.hash import pbkdf2_sha256 as sha256
-from app.middleware import superAdmin
+from app.middleware import superAdmin, admin
 import uuid
 
 
 class Kelas(Resource):
+    @jwt_required
+    @admin()
     def get(self, uuid_user):
         if uuid_user == "admin":
             sql = """select kelas, label, uuid from kelas"""
@@ -26,18 +28,24 @@ class Kelas(Resource):
 
 
 class DaftarKelas(Resource):
+    @jwt_required
+    @superAdmin()
     def get(self):
         sql = """select distinct kelas from kelas"""
         return db.get_data(sql)
 
 
 class DaftarKelasLabel(Resource):
+    @jwt_required
+    @superAdmin()
     def get(self, kelas):
         sql = """select uuid, kelas, label from kelas where kelas = %s"""
         return db.get_data(sql, [kelas])
 
 
 class TambahKelas(Resource):
+    @jwt_required
+    @superAdmin()
     def post(self):
         data = request.get_json()
         uuid_kelas = str(uuid.uuid4())
@@ -46,11 +54,15 @@ class TambahKelas(Resource):
 
 
 class UpdateKelas(Resource):
+    @jwt_required
+    @superAdmin()
     def get(self, uuid_kelas):
         sql = """select * from kelas where uuid = %s"""
         print(db.get_one(sql, [uuid_kelas]))
         return db.get_one(sql, [uuid_kelas])
 
+    @jwt_required
+    @superAdmin()
     def put(self, uuid_kelas):
         data = request.get_json()
         print(data)
@@ -59,6 +71,8 @@ class UpdateKelas(Resource):
 
 
 class DeleteKelas(Resource):
+    @jwt_required
+    @superAdmin()
     def delete(self, uuid_kelas):
         sql = """delete from kelas where uuid = %s"""
         db.commit_data(sql, [uuid_kelas])

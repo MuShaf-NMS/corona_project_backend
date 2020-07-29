@@ -70,8 +70,8 @@ def updateMC(uuid_soal, opsi):
 
 
 class DaftarSoal(Resource):
-    # @jwt_required
-    # @admin()
+    @jwt_required
+    @admin()
     def get(self, uuid_user):
         if uuid_user == "admin":
             sql = """select distinct kelas from kelas"""
@@ -82,8 +82,8 @@ class DaftarSoal(Resource):
 
 
 class DaftarSoalKelas(Resource):
-    # @jwt_required
-    # @admin()
+    @jwt_required
+    @admin()
     def get(self, uuid_user, kelas):
         if uuid_user == "admin":
             sql = """select distinct label from kelas where kelas = %s"""
@@ -94,6 +94,8 @@ class DaftarSoalKelas(Resource):
 
 
 class DaftarSoalKelasLabel(Resource):
+    @jwt_required
+    @admin()
     def get(self, uuid_user, kelas, label):
         if uuid_user == "admin":
             sql = """select distinct mapel from soal join kelas on soal.uuid_kelas = kelas.uuid join mapel on mapel.uuid = soal.uuid_mapel where kelas = %s and label = %s"""
@@ -104,8 +106,8 @@ class DaftarSoalKelasLabel(Resource):
 
 
 class DaftarSoalMapel(Resource):
-    # @jwt_required
-    # @admin()
+    @jwt_required
+    @admin()
     def get(self, uuid_user, kelas, label, mapel):
         if uuid_user == "admin":
             sql = """select distinct materi.uuid, materi from materi join kelas on materi.uuid_kelas = kelas.uuid join mapel on mapel.uuid = materi.uuid_mapel where kelas = %s and label = %s and mapel = %s"""
@@ -116,6 +118,8 @@ class DaftarSoalMapel(Resource):
 
 
 class DaftarSoalSiswaKelas(Resource):
+    @jwt_required
+    @siswa()
     def get(self, uuid_kelas):
         kelas = getKelas(uuid_kelas)
         sql = """select distinct mapel, uuid_mapel from soal join mapel on mapel.uuid = soal.uuid_mapel join siswa on soal.uuid_kelas = siswa.uuid_kelas where siswa.uuid_kelas = %s"""
@@ -124,6 +128,8 @@ class DaftarSoalSiswaKelas(Resource):
 
 
 class DaftarSoalSiswaMapel(Resource):
+    @jwt_required
+    @siswa()
     def get(self, uuid_kelas, uuid_mapel):
         kelas = getKelas(uuid_kelas)
         mapel = getMapel(uuid_mapel)
@@ -133,6 +139,8 @@ class DaftarSoalSiswaMapel(Resource):
 
 
 class Tampil(Resource):
+    @jwt_required
+    @admin()
     def get(self, uuid_materi):
         sql = """select tampil from soal where uuid_materi = %s"""
         res = db.get_one(sql, [uuid_materi])
@@ -142,6 +150,8 @@ class Tampil(Resource):
             res["tampil"] = False
         return res
 
+    @jwt_required
+    @admin()
     def put(self, uuid_materi):
         data = request.get_json()
         sql = """update soal set tampil = %s where uuid_materi = %s"""
@@ -149,6 +159,7 @@ class Tampil(Resource):
 
 
 class JumlahSoal(Resource):
+    @jwt_required
     def get(self, uuid_materi):
         sql = """select count(*) as jml_soal from soal where uuid_materi = %s group by uuid_materi"""
         return db.get_one(sql, [uuid_materi])
@@ -239,13 +250,16 @@ class SoalJawab(Resource):
 
 
 class CekSiswa(Resource):
+    @jwt_required
+    @siswa()
     def get(self, uuid_materi):
         sql = """select uuid_siswa from skor where uuid_materi = %s"""
-        print(db.get_one(sql, [uuid_materi]))
         return db.get_one(sql, [uuid_materi])
 
 
 class DeleteSoal(Resource):
+    @jwt_required
+    @admin()
     def delete(self, id):
         sql = """delete from soal where uuid = %s"""
         db.commit_data(sql, [id])

@@ -160,8 +160,8 @@ class UpdateSiswa(Resource):
 
 
 class DaftarSiswa(Resource):
-    # @jwt_required
-    # @superAdmin()
+    @jwt_required
+    @superAdmin()
     def get(self, kelas, label):
         sql = """select nama, jk, bio_siswa.uuid from bio_siswa join siswa on siswa.uuid = bio_siswa.uuid_siswa join kelas on siswa.uuid_kelas = kelas.uuid where kelas = %s and label = %s"""
         return db.get_data(sql, [kelas, label])
