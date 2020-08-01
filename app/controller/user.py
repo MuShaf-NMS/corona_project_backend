@@ -37,6 +37,9 @@ def saveBlacklistToken(jti):
     sql = """insert into black_list_token values(0,%s)"""
     db.commit_data(sql, [jti])
 
+class Hello(Resource):
+    def get(self):
+        return {"msg": "Hello"}
 
 class Login(Resource):
     def post(self):

@@ -1,5 +1,5 @@
 from app import api
-from app.controller.user import Login, LogoutAccessToken
+from app.controller.user import Login, LogoutAccessToken, Hello
 from app.controller.admin import TambahAdmin, Admin, ProfileAdmin, UpdatePasswordAdmin, UpdateUsernameAdmin, UpdateAdmin, DeleteAdmin
 from app.controller.siswa import TambahSiswa, ProfileSiswa, SiswaKelas, DaftarSiswa, UpdateUsernameSiswa, UpdatePasswordSiswa, UpdateSiswa, DeleteSiswa, SiswaKelasCabang
 from app.controller.kelas import DaftarKelas, TambahKelas, UpdateKelas, DeleteKelas, Kelas, DaftarKelasLabel
@@ -9,6 +9,7 @@ from app.controller.soal import TambahSoal, Jawab, CekSoal, SoalJawab, DeleteSoa
 from app.controller.skor import Skor
 
 # user
+api.add_resource(Hello, "/")
 api.add_resource(Login, "/login")
 api.add_resource(LogoutAccessToken, "/logout-access-token")
 # admin
