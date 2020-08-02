@@ -75,6 +75,6 @@ api.add_resource(DeleteSoal, "/delete-soal/<id>")
 api.add_resource(Jawab, "/jawab-soal/<uuid_materi>")
 api.add_resource(CekSoal, "/ceksoal/<uuid_materi>")
 api.add_resource(SoalJawab, "/get-soal/<id>")
-api.add_resource(CekSiswa, "/cek-siswa/<uuid_materi>")
+api.add_resource(CekSiswa, "/cek-siswa/<uuid_materi>/<uuid_siswa>")
 # skor
 api.add_resource(Skor, "/skor/<uuid_user>/<uuid_materi>")
