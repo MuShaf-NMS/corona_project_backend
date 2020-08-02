@@ -57,7 +57,6 @@ class UpdateMapel(Resource):
     @superAdmin()
     def put(self, uuid_mapel):
         data = request.get_json()
-        print(data)
         sql = """update mapel set mapel = %s where uuid = %s"""
         db.commit_data(sql, [data["mapel"], uuid_mapel])
 

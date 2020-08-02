@@ -58,7 +58,6 @@ class UpdateKelas(Resource):
     @superAdmin()
     def get(self, uuid_kelas):
         sql = """select * from kelas where uuid = %s"""
-        print(db.get_one(sql, [uuid_kelas]))
         return db.get_one(sql, [uuid_kelas])
 
     @jwt_required
