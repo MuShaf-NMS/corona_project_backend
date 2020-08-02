@@ -254,7 +254,7 @@ class CekSiswa(Resource):
     @siswa()
     def get(self, uuid_materi, uuid_siswa):
         sql = """select uuid from skor where uuid_materi = %s and uuid_siswa = %s"""
-        return db.get_data(sql, [uuid_materi, uuid_siswa])
+        return db.get_one(sql, [uuid_materi, uuid_siswa])
 
 
 class DeleteSoal(Resource):
