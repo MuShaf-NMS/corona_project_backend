@@ -252,9 +252,9 @@ class SoalJawab(Resource):
 class CekSiswa(Resource):
     @jwt_required
     @siswa()
-    def get(self, uuid_materi):
-        sql = """select uuid_siswa from skor where uuid_materi = %s"""
-        return db.get_data(sql, [uuid_materi])
+    def get(self, uuid_materi, uuid_siswa):
+        sql = """select uuid from skor where uuid_materi = %s and uuid_siswa = %s"""
+        return db.get_data(sql, [uuid_materi, uuid_siswa])
 
 
 class DeleteSoal(Resource):
