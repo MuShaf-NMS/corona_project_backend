@@ -64,9 +64,9 @@ def updateSoal(uuid_soal, soal, kunci, now):
 
 
 def updateMC(uuid_soal, opsi):
-    db.commit_data("""delete from mc_soal where uuid_soal = %s""", [uuid_soal])
+
     sql = """insert into mc_soal values(0,%s,%s)"""
-    db.commit_data(sql, [opsi, uuid_mc])
+    db.commit_data(sql, [uuid_soal, opsi])
 
 
 class DaftarSoal(Resource):
@@ -187,8 +187,11 @@ class CekSoal(Resource):
     def put(self, uuid_materi):
         now = datetime.now()
         data = request.get_json()
+        print(data)
         for i in data:
             updateSoal(i["uuid"], i["soal"], i["opsi"][0]["nilai"], now)
+            db.commit_data(
+                """delete from mc_soal where uuid_soal = %s""", [i["uuid"]])
             for j in i["opsi"]:
                 updateMC(i["uuid"], j["nilai"])
 
