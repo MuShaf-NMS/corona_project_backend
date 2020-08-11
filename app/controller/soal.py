@@ -45,6 +45,16 @@ def cekJawaban(uuid_materi, uuid_soal, jawaban):
         return {"jawaban": False}
 
 
+def getMC(uuid_soal):
+    sql = """select opsi from mc_soal where uuid_soal = %s"""
+    res = db.get_data(sql, [uuid_soal])
+    for i in res:
+        i["text"] = i["opsi"]
+        i["value"] = i["opsi"]
+        del i["opsi"]
+    return res
+
+
 def postSoal(uuid, uuid_kelas, uuid_mapel, materi, soal, kunci, skor, now, uuid_user):
     sql = """insert into soal values(0,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
     params = [uuid, uuid_kelas, uuid_mapel, materi, soal,
@@ -64,9 +74,16 @@ def updateSoal(uuid_soal, soal, kunci, now):
 
 
 def updateMC(uuid_soal, opsi):
-
     sql = """insert into mc_soal values(0,%s,%s)"""
     db.commit_data(sql, [uuid_soal, opsi])
+
+
+def deleteSoal(uuid_soal):
+    db.commit_data("""delete from soal where uuid = %s""", [uuid_soal])
+
+
+def deleteMC(uuid_soal):
+    db.commit_data("""delete from mc_soal where uuid_soal = %s""", [uuid_soal])
 
 
 class DaftarSoal(Resource):
@@ -170,16 +187,10 @@ class CekSoal(Resource):
     @admin()
     def get(self, uuid_materi):
         kop = getKelasMapelMateri(uuid_materi)
-        sql = """select soal.uuid, soal.kunci_jawaban, soal.skor, opsi.soal, opsi.pilihan from soal, (select soal, group_concat(opsi) as pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.uuid_materi = %s group by soal.soal) opsi where soal.soal = opsi.soal"""
+        sql = """select uuid, kunci_jawaban, skor, soal from soal where uuid_materi = %s"""
         hasil = db.get_data(sql, [uuid_materi])
         for i in hasil:
-            opsi = []
-            for j in i["pilihan"].split(","):
-                pilihan = {}
-                pilihan["nilai"] = j
-                opsi.append(pilihan)
-            del hasil[hasil.index(i)]["pilihan"]
-            hasil[hasil.index(i)]["opsi"] = opsi
+            i["opsi"] = getMC(i["uuid"])
         return {"kelas": kop["kelas"], "mapel": kop["mapel"], "materi": kop["materi"], "soal": hasil}
 
     @jwt_required
@@ -187,13 +198,12 @@ class CekSoal(Resource):
     def put(self, uuid_materi):
         now = datetime.now()
         data = request.get_json()
-        print(data)
         for i in data:
-            updateSoal(i["uuid"], i["soal"], i["opsi"][0]["nilai"], now)
+            updateSoal(i["uuid"], i["soal"], i["opsi"][0]["value"], now)
             db.commit_data(
                 """delete from mc_soal where uuid_soal = %s""", [i["uuid"]])
             for j in i["opsi"]:
-                updateMC(i["uuid"], j["nilai"])
+                updateMC(i["uuid"], j["value"])
 
 
 class TambahSoal(Resource):
@@ -227,7 +237,6 @@ class Jawab(Resource):
         data = request.get_json()
         skor = 0
         user = getUser(uuid_materi)
-        print(user)
         for i in data["hasil"]:
             jawaban = cekJawaban(uuid_materi, i["uuid"], i["jawaban"])
             if jawaban["jawaban"]:
@@ -242,12 +251,9 @@ class SoalJawab(Resource):
     @jwt_required
     @siswa()
     def get(self, id):
-        sql = """select soal,group_concat(opsi) as pilihan from soal join mc_soal on soal.uuid = mc_soal.uuid_soal where soal.uuid = %s group by soal"""
+        sql = """select soal from soal where soal.uuid = %s"""
         hasil = db.get_one(sql, [id])
-        hasil["pilihan"] = hasil["pilihan"].split(",")
-        for i in range(len(hasil["pilihan"])):
-            hasil["pilihan"][i] = {
-                "text": hasil["pilihan"][i], "value": hasil["pilihan"][i]}
+        hasil["pilihan"] = getMC(id)
         shuffle(hasil["pilihan"])
         return hasil
 
@@ -264,5 +270,5 @@ class DeleteSoal(Resource):
     @jwt_required
     @admin()
     def delete(self, id):
-        sql = """delete from soal where uuid = %s"""
-        db.commit_data(sql, [id])
+        deleteSoal(id)
+        deleteMC(id)
