@@ -64,7 +64,6 @@ class UpdateKelas(Resource):
     @superAdmin()
     def put(self, uuid_kelas):
         data = request.get_json()
-        print(data)
         sql = """update kelas set kelas = %s, label = %s where uuid = %s"""
         db.commit_data(sql, [data["kelas"], data["label"], uuid_kelas])
 

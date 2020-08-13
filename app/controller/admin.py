@@ -21,7 +21,6 @@ def postBioUser(uuid, nama, username, jk, alamat, tempat_lahir, tanggal_lahir, h
 
 def postUser(uuid_user, username, password, superadmin, now):
     sql = """insert into user values(0,%s,%s,%s,%s,%s,%s)"""
-    print(superadmin)
     params = [uuid_user, username, password, superadmin, now, now]
     return db.commit_data(sql, params)
 
@@ -45,8 +44,7 @@ def putUser(id_user, superadmin, now):
 
 
 def putPengampu(uuid_user, uuid_kelas, uuid_mapel, now):
-    db.commit_data(
-        """delete from pengampu where uuid_user = %s""", [uuid_user])
+
     sql = """insert into pengampu values(0,%s,%s,%s,%s)"""
     params = [uuid_user, uuid_kelas, uuid_mapel, now]
     return db.commit_data(sql, params)
@@ -197,7 +195,6 @@ class UpdateAdmin(Resource):
             res["superadmin"] = True
         else:
             res["superadmin"] = False
-        print(res)
         return res
 
     @jwt_required
@@ -205,7 +202,6 @@ class UpdateAdmin(Resource):
     def put(self, id):
         now = datetime.now()
         data = request.get_json()
-        print(data)
         sql = """select uuid_user from bio_user where uuid = %s"""
         id_user = db.get_one(sql, [id])["uuid_user"]
         tanggal_lahir = stringTime(data["tanggal_lahir"])
@@ -213,8 +209,13 @@ class UpdateAdmin(Resource):
                    data["tempat_lahir"], data["hp"], data["email"], now)
         putUser(id_user, data["superadmin"], now)
         if len(data["ampu"]) > 0:
+            db.commit_data(
+                """delete from pengampu where uuid_user = %s""", [id_user])
             for i in data["ampu"]:
                 putPengampu(id_user, i["uuid_kelas"], i["uuid_mapel"], now)
+        else:
+            db.commit_data(
+                """delete from pengampu where uuid_user = %s""", [id_user])
 
 
 class DeleteAdmin(Resource):

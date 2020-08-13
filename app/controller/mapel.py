@@ -18,7 +18,6 @@ class Mapel(Resource):
         else:
             sql = """select mapel, uuid from pengampu join mapel on pengampu.uuid_mapel = mapel.uuid where uuid_user = %s"""
             res = db.get_data(sql, [uuid_user])
-            print(res)
         for i in res:
             i["text"] = i["mapel"]
             i["value"] = i["uuid"]
@@ -50,7 +49,6 @@ class UpdateMapel(Resource):
     @superAdmin()
     def get(self, uuid_mapel):
         sql = """select * from mapel where uuid = %s"""
-        print(db.get_one(sql, [uuid_mapel]))
         return db.get_one(sql, [uuid_mapel])
 
     @jwt_required
